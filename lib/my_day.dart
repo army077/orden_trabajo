@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'entities/tareas.dart';
 import 'shared/form_inspeccion1.dart'; // Importamos la clase pública
 import 'shared/form_inspeccion2.dart';
@@ -18,6 +20,9 @@ class MyDayScreen extends StatefulWidget {
   _MyDayScreenState createState() => _MyDayScreenState();
 }
 
+final user = FirebaseAuth.instance.currentUser;
+
+
 class _MyDayScreenState extends State<MyDayScreen> {
   late Future<List<Tarea>> futureTareas;
   Map<int, bool> checkboxHabilitado =
@@ -29,14 +34,31 @@ class _MyDayScreenState extends State<MyDayScreen> {
     futureTareas = fetchTareas();
   }
 
+  Future <void> signOutWithGoogle () async {
+    final googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut();
+  }
+
+  void signOut()async {
+    FirebaseAuth.instance.signOut();
+    await signOutWithGoogle();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Orden Trabajo',
+        actions: [
+          ElevatedButton(
+            onPressed: signOut,
+             child: Text('Cerrar'),
+          ),
+        ],
+
+        title:  Text(
+          'Orden Trabajo de  ${user?.displayName}',
           style: TextStyle(color: Colors.white),
-        ),
+        ), 
         backgroundColor: const Color.fromARGB(255, 221, 87, 78),
       ),
       body: FutureBuilder<List<Tarea>>(
