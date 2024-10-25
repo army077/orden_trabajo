@@ -1,21 +1,32 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_app/firebase_options.dart';
+import 'package:todo_app/my_day.dart';
 import 'package:todo_app/screen/auth_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
-import 'my_day.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 void main() async {
-
-  WidgetsFlutterBinding.ensureInitialized();
+WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MaterialApp(
-    home: const AuthScreen(),
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      primarySwatch: Colors.blue,
-    ),
-  ));
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const AuthScreen(),
+        '/my_day_screen': (context) =>  MyDayScreen(),
+        '/login_screen': (context) => LoginScreen(),
+      },
+    );
+  }
 }
