@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "256484787693-3c8tbdmvvgi42cuelbavu84f3l2i65io.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.exam",
+            "certificate_hash": "be0d7e5f8f83c40e64df221e03b4c76c223a4102"
+          }
+        },
+        {
           "client_id": "256484787693-j3gecoadvr9dmnng7dpe9b4j09vb6nk1.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -42,6 +50,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "256484787693-4mbmb9ogo6enf5j9091qu5fmlaok38rq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.todo_app",
+            "certificate_hash": "478b7bdc5bf3bc2aa300d28ae06a187714f1d25f"
+          }
+        },
+        {
+          "client_id": "256484787693-t02hv6a1qo8e42h01b64tn2hh5p5194u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.todo_app",
+            "certificate_hash": "be0d7e5f8f83c40e64df221e03b4c76c223a4102"
+          }
+        },
         {
           "client_id": "256484787693-j3gecoadvr9dmnng7dpe9b4j09vb6nk1.apps.googleusercontent.com",
           "client_type": 3

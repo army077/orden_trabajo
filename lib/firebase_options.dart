@@ -59,4 +59,5 @@ class DefaultFirebaseOptions {
     projectId: 'ordentrabajoar',
     storageBucket: 'ordentrabajoar.appspot.com',
   );
+
 }

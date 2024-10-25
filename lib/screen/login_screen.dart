@@ -31,10 +31,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+
+  
   Widget build(BuildContext context) {
     final user = _authService.currentUser;
+
+    const SizedBox(height: -60,);
     final welcomeMessage = user != null
-        ? '¡Bienvenido, ${user.email ?? user.displayName}!'
+        ? '¡Bienvenido, ${user.displayName ?? user.displayName}!'
         : '¡Bienvenido!';
 
     return Scaffold(
