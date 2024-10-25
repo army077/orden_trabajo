@@ -37,6 +37,13 @@
             {
               "client_id": "256484787693-j3gecoadvr9dmnng7dpe9b4j09vb6nk1.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "256484787693-bp91mpi74a5klhejgcu6t8q91bpjkv6c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.todo-app"
+              }
             }
           ]
         }
@@ -82,6 +89,13 @@
             {
               "client_id": "256484787693-j3gecoadvr9dmnng7dpe9b4j09vb6nk1.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "256484787693-bp91mpi74a5klhejgcu6t8q91bpjkv6c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.todo-app"
+              }
             }
           ]
         }

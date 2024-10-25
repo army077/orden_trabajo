@@ -10,6 +10,19 @@
     <key>NSBiometricUsageDescription</key>
     <string>Necesitamos usar tu autenticación biométrica para acceder a la app.</string>
 
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <!-- Replace this value with the reverse client ID from GoogleService-Info.plist -->
+                <string>com.googleusercontent.apps.256484787693-tm5ju2rf4e5j41enqa6ndludgnu2umkl</string>
+            </array>
+        </dict>
+    </array>
+
     <!-- Configuración general de la aplicación -->
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>

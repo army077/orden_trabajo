@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -10,36 +10,39 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
-  bool _isAuthenticating = false; // Para mostrar un loader durante la autenticación.
+  bool _isAuthenticating = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Si deseas que la autenticación se retrase automáticamente después de un tiempo:
-    Future.delayed(const Duration(minutes: 1), _checkBiometricAndAuthenticate);
-  }
-
-  /// Lógica para verificar si hay usuario y activar la biometría.
+  /// Biometric authentication logic triggered by button press.
   Future<void> _checkBiometricAndAuthenticate() async {
-    final user = _authService.currentUser;
-    if (user != null) {
+    setState(() => _isAuthenticating = true);
+
+    try {
       bool authenticated = await _authService.authenticateWithBiometrics();
-      if (authenticated && context.mounted) {
+      if (authenticated && mounted) {
         Navigator.pushReplacementNamed(context, '/my_day_screen');
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Autenticación fallida. Inténtalo de nuevo.'),
+            ),
+          );
+        }
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isAuthenticating = false);
     }
   }
 
   @override
-
-  
   Widget build(BuildContext context) {
     final user = _authService.currentUser;
-
-    const SizedBox(height: -60,);
-    final welcomeMessage = user != null
-        ? '¡Bienvenido, ${user.displayName ?? user.displayName}!'
-        : '¡Bienvenido!';
 
     return Scaffold(
       backgroundColor: const Color(0xFF8B0000),
@@ -52,7 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      welcomeMessage,
+                      user != null
+                          ? '¡Bienvenido, ${user.displayName}!'
+                          : '¡Bienvenido!',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -68,29 +73,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 250),
-                    if (user != null) ...[
+                    if (user != null)
                       ElevatedButton.icon(
                         onPressed: _checkBiometricAndAuthenticate,
                         icon: const Icon(Icons.fingerprint),
                         label: const Text('Ingresar con huella o rostro'),
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.black, backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          backgroundColor: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 20),
-                    ],
+                    const SizedBox(height: 20),
                     TextButton.icon(
                       onPressed: () async {
                         final user = await _authService.signInWithGoogle();
-                        if (user != null && context.mounted) {
+                        if (user != null && mounted) {
                           Navigator.pushReplacementNamed(
                               context, '/my_day_screen');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                'Error en la autenticación. Inténtalo de nuevo.',
-                              ),
+                                  'Error en la autenticación. Inténtalo de nuevo.'),
                             ),
                           );
                         }

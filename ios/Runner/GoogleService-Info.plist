@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>256484787693-bp91mpi74a5klhejgcu6t8q91bpjkv6c.apps.googleusercontent.com</string>
+	<string>256484787693-tm5ju2rf4e5j41enqa6ndludgnu2umkl.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.256484787693-bp91mpi74a5klhejgcu6t8q91bpjkv6c</string>
+	<string>com.googleusercontent.apps.256484787693-tm5ju2rf4e5j41enqa6ndludgnu2umkl</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>256484787693-3c8tbdmvvgi42cuelbavu84f3l2i65io.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.todo-app</string>
+	<string>com.example.todoApp.RunnerTests</string>
 	<key>PROJECT_ID</key>
 	<string>ordentrabajoar</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:256484787693:ios:f77936e09c9b91bb6953e4</string>
+	<string>1:256484787693:ios:90bfb3f35c1bbf8e6953e4</string>
 </dict>
 </plist>
