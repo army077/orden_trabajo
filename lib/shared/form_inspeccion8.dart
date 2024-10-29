@@ -17,8 +17,7 @@ class FormularioConFugas extends StatefulWidget {
 
 class _FormularioConFugasState extends State<FormularioConFugas> {
   String? opcionSeleccionada; // Almacena la opción seleccionada
-  bool botonHabilitado =
-      false; // Controla si el botón "Completar" está habilitado
+  bool botonHabilitado = false; // Controla si el botón "Completar" está habilitado
 
   // Opciones para evaluar las fugas
   final List<Map<String, dynamic>> opcionesFugas = [
@@ -27,12 +26,23 @@ class _FormularioConFugasState extends State<FormularioConFugas> {
     {"valor": 3, "texto": "3 - Sin Fugas"},
   ];
 
-  // Método para completar la tarea
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el valor seleccionado con el guardado en la tarea, si existe
+    opcionSeleccionada = widget.tarea.estadoFugas ?? opcionesFugas.first["valor"].toString();
+    botonHabilitado = opcionSeleccionada != null;
+  }
+
+  // Método para completar la tarea y guardar los datos
   void _completarTarea() {
     if (opcionSeleccionada != null) {
       setState(() {
+        // Guardamos el valor seleccionado en la tarea
+        widget.tarea.estadoFugas = opcionSeleccionada;
         widget.tarea.completada = true; // Marca la tarea como completada
       });
+
       widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
       Navigator.pop(context); // Cierra el modal
     } else {
@@ -76,6 +86,7 @@ class _FormularioConFugasState extends State<FormularioConFugas> {
 
           // Dropdown con opciones de fugas
           DropdownButtonFormField<String>(
+            value: opcionSeleccionada,
             isExpanded: true,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
@@ -90,8 +101,7 @@ class _FormularioConFugasState extends State<FormularioConFugas> {
             onChanged: (valor) {
               setState(() {
                 opcionSeleccionada = valor;
-                botonHabilitado =
-                    true; // Habilita el botón al seleccionar una opción
+                botonHabilitado = valor != null;
               });
             },
             validator: (valor) {
@@ -109,9 +119,7 @@ class _FormularioConFugasState extends State<FormularioConFugas> {
               onPressed: botonHabilitado ? _completarTarea : null,
               child: Text(
                 'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),

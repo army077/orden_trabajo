@@ -8,7 +8,7 @@ class FormularioDesgaste extends StatefulWidget {
   const FormularioDesgaste({
     Key? key,
     required this.tarea,
-    required this.onCompletar, // Recibe la función de callback
+    required this.onCompletar,
   }) : super(key: key);
 
   @override
@@ -17,8 +17,7 @@ class FormularioDesgaste extends StatefulWidget {
 
 class _FormularioDesgasteState extends State<FormularioDesgaste> {
   String? opcionSeleccionada; // Almacena la opción seleccionada
-  bool botonHabilitado =
-      false; // Controla si el botón "Completar" está habilitado
+  bool botonHabilitado = false; // Controla si el botón está habilitado
 
   // Opciones para evaluar el desgaste
   final List<Map<String, dynamic>> opcionesDesgaste = [
@@ -28,14 +27,24 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
     {"valor": 4, "texto": "4 - En buen estado"},
   ];
 
-  // Método para completar la tarea
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el valor seleccionado si ya existe en la tarea
+    opcionSeleccionada = widget.tarea.estadoDesgaste;
+    botonHabilitado = opcionSeleccionada != null; // Habilita si ya tiene valor
+  }
+
+  // Método para completar la tarea y guardar los datos
   void _completarTarea() {
     if (opcionSeleccionada != null) {
       setState(() {
-        widget.tarea.completada = true; // Marca la tarea como completada
+        widget.tarea.estadoDesgaste = opcionSeleccionada; // Guardamos el valor
+        widget.tarea.completada = true; // Marcamos la tarea como completada
       });
-      widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-      Navigator.pop(context); // Cierra el modal
+
+      widget.onCompletar(); // Notificamos el cambio
+      Navigator.pop(context); // Cerramos el modal
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Por favor selecciona una opción')),
@@ -78,6 +87,7 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
           // Dropdown con opciones de desgaste
           DropdownButtonFormField<String>(
             isExpanded: true,
+            value: opcionSeleccionada, // Carga el valor inicial
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona el estado de desgaste',
@@ -91,8 +101,7 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
             onChanged: (valor) {
               setState(() {
                 opcionSeleccionada = valor;
-                botonHabilitado =
-                    true; // Habilita el botón al seleccionar una opción
+                botonHabilitado = true; // Habilita el botón
               });
             },
             validator: (valor) {
@@ -110,9 +119,7 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
               onPressed: botonHabilitado ? _completarTarea : null,
               child: Text(
                 'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),

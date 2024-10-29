@@ -24,9 +24,22 @@ class Tarea {
   bool completada;
   final DateTime fechaCreacion;
 
-  // Nuevos campos para los datos ingresados en los formularios
-  String? componente;  // Nombre del componente o equipo limpiado
-  String? estatus;      // Estatus del trabajo realizado
+  // Nuevos campos para guardar datos de los formularios
+  String? componente;      // Nombre del componente o equipo limpiado
+  String? estatus;          // Estado del trabajo realizado
+  String? opcionDanio;      // Opción seleccionada para daño
+  String? estadoEstetico;   // Estado estético
+  String? fueraDeRango;     // ¿Está fuera de rango?
+  double? limiteSuperior;   // Límite superior (numérico)
+  double? limiteInferior;   // Límite inferior (numérico)
+  String? unidadMedida;     // Unidad de medida
+  String? estadoConexion;
+  String? incompleto;  
+  String? estadoCalibracion;
+  String? estadoDesgaste;
+  String? estadoFugas; // Estado de las fugas
+  
+
 
   Tarea({
     required this.id,
@@ -38,8 +51,19 @@ class Tarea {
     required this.noFormulario,
     this.completada = false,
     required this.fechaCreacion,
-    this.componente,  // Inicializamos con valor nulo
-    this.estatus,     // Inicializamos con valor nulo
+    this.componente,
+    this.estatus,
+    this.opcionDanio,
+    this.estadoEstetico,
+    this.fueraDeRango,
+    this.limiteSuperior,
+    this.limiteInferior,
+    this.unidadMedida,
+    this.estadoConexion,
+    this.incompleto,
+    this.estadoCalibracion,
+    this.estadoDesgaste,
+    this.estadoFugas,
   });
 
   // Deserialización de JSON a Tarea.
@@ -54,8 +78,23 @@ class Tarea {
       noFormulario: json['no_formulario'],
       completada: json['completada'] ?? false,
       fechaCreacion: DateTime.parse(json['fecha_creacion']),
-      componente: json['componente'],  // Cargamos el nombre del componente (si existe)
-      estatus: json['estatus'],        // Cargamos el estatus (si existe)
+      componente: json['componente'],
+      estatus: json['estatus'],
+      opcionDanio: json['opcion_danio'],
+      estadoEstetico: json['estado_estetico'],
+      fueraDeRango: json['fuera_de_rango'],
+      limiteSuperior: (json['limite_superior'] != null)
+          ? double.parse(json['limite_superior'].toString())
+          : null,
+      limiteInferior: (json['limite_inferior'] != null)
+          ? double.parse(json['limite_inferior'].toString())
+          : null,
+      unidadMedida: json['unidad_medida'],
+      estadoConexion: json['estado_conexion'],
+      incompleto: json['incompleto'],
+      estadoCalibracion: json['estado_calibracion'],
+      estadoDesgaste: json['estado_desgaste'],
+       estadoFugas: json['estado_fugas'],
     );
   }
 
@@ -71,8 +110,18 @@ class Tarea {
       'no_formulario': noFormulario,
       'completada': completada,
       'fecha_creacion': fechaCreacion.toIso8601String(),
-      'componente': componente,  // Guardamos el nombre del componente
-      'estatus': estatus,        // Guardamos el estatus
+      'componente': componente,
+      'estatus': estatus,
+      'opcion_danio': opcionDanio,
+      'estado_estetico': estadoEstetico,
+      'fuera_de_rango': fueraDeRango,
+      'limite_superior': limiteSuperior,
+      'limite_inferior': limiteInferior,
+      'unidad_medida': unidadMedida,
+      'estado_conexion': estadoConexion,
+      'incompleto': incompleto,
+      'estado_calibracion': estadoCalibracion,
+       'estado_fugas': estadoFugas,
     };
   }
 }

@@ -27,14 +27,23 @@ class _FormularioEstadoEsteticoState extends State<FormularioEstadoEstetico> {
     {"valor": 3, "texto": "3 - En buen estado"},
   ];
 
-  // Método para completar la tarea y cerrar el modal
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el valor seleccionado si ya existe en la tarea
+    opcionSeleccionada = widget.tarea.estadoEstetico;
+    botonHabilitado = opcionSeleccionada != null;
+  }
+
+  // Método para completar la tarea y guardar los datos
   void _completarTarea() {
     setState(() {
-      widget.tarea.completada = true; // Marca la tarea como completada
+      widget.tarea.estadoEstetico = opcionSeleccionada; // Guardamos el valor
+      widget.tarea.completada = true; // Marcamos la tarea como completada
     });
 
-    widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-    Navigator.pop(context); // Cierra el modal
+    widget.onCompletar(); // Notificamos para guardar los cambios
+    Navigator.pop(context); // Cerramos el modal
   }
 
   @override
@@ -76,8 +85,10 @@ class _FormularioEstadoEsteticoState extends State<FormularioEstadoEstetico> {
           ),
           SizedBox(height: 8),
 
+          // Dropdown para seleccionar el estado estético
           DropdownButtonFormField<String>(
             isExpanded: true, // Asegura que ocupe todo el ancho
+            value: opcionSeleccionada,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona una opción',

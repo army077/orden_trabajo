@@ -16,8 +16,8 @@ class FormularioConDetalles extends StatefulWidget {
 }
 
 class _FormularioConDetallesState extends State<FormularioConDetalles> {
-  String? opcionSeleccionada;
-  bool botonHabilitado = false;
+  String? opcionSeleccionada; // Almacena la opción seleccionada
+  bool botonHabilitado = false; // Controla el estado del botón
 
   final List<Map<String, dynamic>> opcionesDanio = [
     {"valor": 1, "texto": "1 - No funcional"},
@@ -32,13 +32,23 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
     {"valor": 4, "texto": "4 - 100% Funcional"}
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa la opción seleccionada si ya existe en la tarea
+    opcionSeleccionada = widget.tarea.opcionDanio;
+    botonHabilitado = opcionSeleccionada != null;
+  }
+
+  // Método para completar la tarea y guardar los datos
   void _completarTarea() {
     setState(() {
-      widget.tarea.completada = true; // Marca la tarea como completada
+      widget.tarea.opcionDanio = opcionSeleccionada; // Guardamos la opción seleccionada
+      widget.tarea.completada = true; // Marcamos la tarea como completada
     });
 
-    widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-    Navigator.pop(context); // Cierra el modal
+    widget.onCompletar(); // Notificamos para actualizar y guardar
+    Navigator.pop(context); // Cerramos el modal
   }
 
   @override
@@ -47,11 +57,14 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Título de la tarea
           Text(
             widget.tarea.titulo,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
+
+          // Objetivo de la tarea
           Text(
             'Objetivo:',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -62,18 +75,25 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
             style: TextStyle(fontSize: 16),
           ),
           SizedBox(height: 16),
+
+          // Tiempo estimado
           Text(
             'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 16),
+
+          // Selección de daño
           Text(
             '¿Con Daño?',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
+
+          // Dropdown para seleccionar el tipo de daño
           DropdownButtonFormField<String>(
             isExpanded: true,
+            value: opcionSeleccionada, // Valor inicial
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona una opción',
@@ -86,20 +106,26 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
             }).toList(),
             onChanged: (valor) {
               setState(() {
-                opcionSeleccionada = valor;
-                botonHabilitado = true;
+                opcionSeleccionada = valor; // Actualiza la opción seleccionada
+                botonHabilitado = true; // Habilita el botón "Completar"
               });
+            },
+            validator: (valor) {
+              if (valor == null || valor.isEmpty) {
+                return 'Por favor selecciona una opción';
+              }
+              return null;
             },
           ),
           SizedBox(height: 16),
+
+          // Botón "Completar"
           Center(
             child: ElevatedButton(
               onPressed: botonHabilitado ? _completarTarea : null,
               child: Text(
                 'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),

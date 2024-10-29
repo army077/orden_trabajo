@@ -16,15 +16,24 @@ class FormularioIncompleto extends StatefulWidget {
 }
 
 class _FormularioIncompletoState extends State<FormularioIncompleto> {
-  String opcionSeleccionada = "No"; // Valor por defecto
+  String? opcionSeleccionada; // Almacena la opción seleccionada
 
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa la opción seleccionada si ya existe en la tarea
+    opcionSeleccionada = widget.tarea.incompleto ?? "No";
+  }
+
+  // Método para completar la tarea y guardar los datos
   void _completarTarea() {
     setState(() {
-      widget.tarea.completada = true; // Marca la tarea como completada
+      widget.tarea.incompleto = opcionSeleccionada; // Guardamos la opción seleccionada
+      widget.tarea.completada = true; // Marcamos la tarea como completada
     });
 
-    widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-    Navigator.pop(context); // Cierra el modal
+    widget.onCompletar(); // Notificamos para guardar los cambios
+    Navigator.pop(context); // Cerramos el modal
   }
 
   @override
@@ -75,7 +84,7 @@ class _FormularioIncompletoState extends State<FormularioIncompleto> {
                 groupValue: opcionSeleccionada,
                 onChanged: (valor) {
                   setState(() {
-                    opcionSeleccionada = valor!;
+                    opcionSeleccionada = valor;
                   });
                 },
               ),
@@ -85,7 +94,7 @@ class _FormularioIncompletoState extends State<FormularioIncompleto> {
                 groupValue: opcionSeleccionada,
                 onChanged: (valor) {
                   setState(() {
-                    opcionSeleccionada = valor!;
+                    opcionSeleccionada = valor;
                   });
                 },
               ),

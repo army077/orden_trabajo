@@ -26,13 +26,23 @@ class _FormularioCalibracionState extends State<FormularioCalibracion> {
     {"valor": 3, "texto": "3 - No aplica"},
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa la opción seleccionada si ya existe en la tarea
+    opcionSeleccionada = widget.tarea.estadoCalibracion;
+    botonHabilitado = opcionSeleccionada != null;
+  }
+
+  // Método para completar la tarea y guardar los datos
   void _completarTarea() {
     setState(() {
-      widget.tarea.completada = true; // Marca la tarea como completada
+      widget.tarea.estadoCalibracion = opcionSeleccionada; // Guardamos el estado
+      widget.tarea.completada = true; // Marcamos la tarea como completada
     });
 
-    widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-    Navigator.pop(context); // Cierra el modal
+    widget.onCompletar(); // Notificamos para guardar los cambios
+    Navigator.pop(context); // Cerramos el modal
   }
 
   @override
@@ -77,6 +87,7 @@ class _FormularioCalibracionState extends State<FormularioCalibracion> {
           // Dropdown con opciones de calibración
           DropdownButtonFormField<String>(
             isExpanded: true,
+            value: opcionSeleccionada, // Cargamos el valor inicial
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona una opción',
