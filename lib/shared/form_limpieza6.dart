@@ -28,14 +28,26 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
     {"valor": 4, "texto": "4 - Terminada"},
   ];
 
-  // Método para completar la tarea
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa los campos con valores existentes si los hay
+    _componenteController.text = widget.tarea.componente ?? '';
+    opcionSeleccionada = widget.tarea.estatus;
+    botonHabilitado = _componenteController.text.isNotEmpty && opcionSeleccionada != null;
+  }
+
+  // Método para completar la tarea y guardar los datos ingresados
   void _completarTarea() {
     setState(() {
-      widget.tarea.completada = true; // Marca la tarea como completada
+      // Guardamos los datos ingresados en la tarea
+      widget.tarea.componente = _componenteController.text;
+      widget.tarea.estatus = opcionSeleccionada;
+      widget.tarea.completada = true; // Marcamos la tarea como completada
     });
 
-    widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-    Navigator.pop(context); // Cierra el modal
+    widget.onCompletar(); // Notificamos al widget principal para actualizar y guardar
+    Navigator.pop(context); // Cerramos el modal
   }
 
   @override
@@ -78,8 +90,7 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
             ),
             onChanged: (value) {
               setState(() {
-                botonHabilitado =
-                    value.isNotEmpty && opcionSeleccionada != null;
+                botonHabilitado = value.isNotEmpty && opcionSeleccionada != null;
               });
             },
           ),
@@ -94,6 +105,7 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
 
           DropdownButtonFormField<String>(
             isExpanded: true,
+            value: opcionSeleccionada,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona un estatus',
@@ -107,8 +119,7 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
             onChanged: (valor) {
               setState(() {
                 opcionSeleccionada = valor;
-                botonHabilitado =
-                    _componenteController.text.isNotEmpty && valor != null;
+                botonHabilitado = _componenteController.text.isNotEmpty && valor != null;
               });
             },
             validator: (valor) {
@@ -126,9 +137,7 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
               onPressed: botonHabilitado ? _completarTarea : null,
               child: Text(
                 'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
@@ -143,7 +152,7 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
 
   @override
   void dispose() {
-    _componenteController.dispose(); // Liberar el controlador al cerrar
+    _componenteController.dispose(); // Liberamos el controlador al cerrar
     super.dispose();
   }
 }

@@ -24,6 +24,10 @@ class Tarea {
   bool completada;
   final DateTime fechaCreacion;
 
+  // Nuevos campos para los datos ingresados en los formularios
+  String? componente;  // Nombre del componente o equipo limpiado
+  String? estatus;      // Estatus del trabajo realizado
+
   Tarea({
     required this.id,
     required this.titulo,
@@ -34,6 +38,8 @@ class Tarea {
     required this.noFormulario,
     this.completada = false,
     required this.fechaCreacion,
+    this.componente,  // Inicializamos con valor nulo
+    this.estatus,     // Inicializamos con valor nulo
   });
 
   // Deserialización de JSON a Tarea.
@@ -48,6 +54,8 @@ class Tarea {
       noFormulario: json['no_formulario'],
       completada: json['completada'] ?? false,
       fechaCreacion: DateTime.parse(json['fecha_creacion']),
+      componente: json['componente'],  // Cargamos el nombre del componente (si existe)
+      estatus: json['estatus'],        // Cargamos el estatus (si existe)
     );
   }
 
@@ -63,6 +71,8 @@ class Tarea {
       'no_formulario': noFormulario,
       'completada': completada,
       'fecha_creacion': fechaCreacion.toIso8601String(),
+      'componente': componente,  // Guardamos el nombre del componente
+      'estatus': estatus,        // Guardamos el estatus
     };
   }
 }

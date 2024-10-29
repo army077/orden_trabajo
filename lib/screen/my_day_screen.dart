@@ -17,7 +17,6 @@ import '../shared/form_inspeccion9.dart';
 import '../shared/form_reemplazo10.dart';
 import '../shared/form_ajuste11.dart';
 import '../shared/form_inspeccion12.dart';
-// Otros formularios...
 
 class MyDayScreen extends StatefulWidget {
   @override
@@ -34,21 +33,24 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    futureTareas = _loadTareas(); // Cargar tareas desde almacenamiento o API.
-    WidgetsBinding.instance.addObserver(this); // Observar ciclo de vida.
+    futureTareas = _loadTareas();
+    WidgetsBinding.instance.addObserver(this); // Observamos el ciclo de vida
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _saveTareas(); // Guardar tareas al salir.
+    WidgetsBinding.instance.removeObserver(this); // Quitamos el observer
+    _saveTareas(); // Guardamos las tareas antes de cerrar
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
-      _saveTareas(); // Guardar tareas si la app pasa a segundo plano o se cierra.
+      _saveTareas(); // Guardamos las tareas al salir
+
+      // Redirigir a la pantalla de login para autenticación biométrica
+      Navigator.pushReplacementNamed(context, '/login_screen');
     }
   }
 
@@ -93,7 +95,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           'Orden Trabajo de ${user?.displayName ?? 'Usuario'}',
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: const  Color(0xFF8B0000),
+        backgroundColor: const Color(0xFF8B0000),
       ),
       body: FutureBuilder<List<Tarea>>(
         future: futureTareas,
@@ -146,10 +148,16 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   List<Widget> _buildTaskList(List<Tarea> tareas) {
     return tareas.map((tarea) {
       return ListTile(
+        leading: Icon(getIconForCategory(tarea.categoria)), // Ícono basado en la categoría
         title: Text(tarea.titulo),
         trailing: Checkbox(
           value: tarea.completada,
-          onChanged: null, // Deshabilitado para el usuario.
+          onChanged: (bool? value) {
+            setState(() {
+              tarea.completada = value ?? false;
+            });
+            _saveTareas(); // Guardar inmediatamente después de cambiar el estado
+          },
         ),
         onTap: () => _showTaskDetails(tarea),
       );
@@ -178,45 +186,39 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   Widget _getFormularioPorTipo(Tarea tarea) {
     switch (tarea.noFormulario) {
       case 1:
-        return FormularioConDetalles(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioConDetalles(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 2:
-        return FormularioEstadoEstetico(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioEstadoEstetico(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 3:
-        return FormularioIncompleto(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioIncompleto(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 4:
-        return FormularioCalibracion(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioCalibracion(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 5:
-        return FormularioFueraDeRango(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioFueraDeRango(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 6:
-        return FormularioLimpieza(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioLimpieza(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 7:
-        return FormularioDesgaste(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioDesgaste(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 8:
-        return FormularioConFugas(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioConFugas(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 9:
-        return FormularioConexiones(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioConexiones(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 10:
-        return FormularioPreventivo(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioPreventivo(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 11:
-        return FormularioComponente(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioComponente(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 12:
-        return FormularioCondicion(tarea: tarea, onCompletar: () => setState(() {}));
+        return FormularioCondicion(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       default:
-        return const Center(
-          child: Text(
-            'Formulario no disponible',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        );
+        return const Center(child: Text('Formulario no disponible', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)));
     }
-}
+  }
 
-  void _markAsCompleted(Tarea tarea) {
+  void _markAsCompleted(Tarea tarea) async {
     setState(() {
-      tarea.completada = true; // Marcar como completada.
+      tarea.completada = true;
     });
-    _saveTareas(); // Guardar el estado inmediatamente.
-    Navigator.pop(context); // Cerrar el formulario.
+    await _saveTareas();
   }
 }
 
