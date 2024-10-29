@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_app/firebase_options.dart';
-import 'package:todo_app/my_day.dart';
+import 'package:todo_app/firebase/firebase_options.dart';
+import 'package:todo_app/screen/my_day_screen.dart';
 import 'package:todo_app/screen/auth_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
 
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const AuthScreen(),
         '/my_day_screen': (context) =>  MyDayScreen(),
-        '/login_screen': (context) => LoginScreen(),
+        '/login_screen': (context) => const LoginScreen(),
       },
     );
   }

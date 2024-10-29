@@ -1,20 +1,23 @@
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/services/auth_service.dart';
-import 'entities/tareas.dart';
-import 'shared/form_inspeccion1.dart';
-import 'shared/form_inspeccion2.dart';
-import 'shared/form_inspeccion3.dart';
-import 'shared/form_inspeccion4.dart';
-import 'shared/form_inspeccion5.dart';
-import 'shared/form_limpieza6.dart';
-import 'shared/form_inspeccion7.dart';
-import 'shared/form_inspeccion8.dart';
-import 'shared/form_inspeccion9.dart';
-import 'shared/form_reemplazo10.dart';
-import 'shared/form_ajuste11.dart';
-import 'shared/form_inspeccion12.dart';
+import '../entities/tareas.dart';
+import '../shared/form_inspeccion1.dart';
+import '../shared/form_inspeccion2.dart';
+import '../shared/form_inspeccion3.dart';
+import '../shared/form_inspeccion4.dart';
+import '../shared/form_inspeccion5.dart';
+import '../shared/form_limpieza6.dart';
+import '../shared/form_inspeccion7.dart';
+import '../shared/form_inspeccion8.dart';
+import '../shared/form_inspeccion9.dart';
+import '../shared/form_reemplazo10.dart';
+import '../shared/form_ajuste11.dart';
+import '../shared/form_inspeccion12.dart';
+// Otros formularios...
 
 class MyDayScreen extends StatefulWidget {
   @override
@@ -26,32 +29,54 @@ final user = FirebaseAuth.instance.currentUser;
 class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   late Future<List<Tarea>> futureTareas;
   final AuthService _authService = AuthService();
-  Map<int, bool> checkboxHabilitado = {}; // Controla si el checkbox está habilitado por tarea
+  List<Tarea> tareas = [];
 
   @override
   void initState() {
     super.initState();
-    futureTareas = fetchTareas();
-    WidgetsBinding.instance.addObserver(this); // Observa el ciclo de vida.
+    futureTareas = _loadTareas(); // Cargar tareas desde almacenamiento o API.
+    WidgetsBinding.instance.addObserver(this); // Observar ciclo de vida.
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); // Elimina el observador.
+    WidgetsBinding.instance.removeObserver(this);
+    _saveTareas(); // Guardar tareas al salir.
     super.dispose();
   }
 
-  /// Redirige a LoginScreen si la app vuelve del segundo plano.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      Navigator.pushReplacementNamed(context, '/login_screen');
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      _saveTareas(); // Guardar tareas si la app pasa a segundo plano o se cierra.
     }
   }
 
+  Future<List<Tarea>> _loadTareas() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? tareasJson = prefs.getString('tareas');
+
+    if (tareasJson != null) {
+      List<dynamic> data = json.decode(tareasJson);
+      return data.map((json) => Tarea.fromJson(json)).toList();
+    } else {
+      List<Tarea> apiTareas = await fetchTareas();
+      await _saveTareas(apiTareas);
+      return apiTareas;
+    }
+  }
+
+  Future<void> _saveTareas([List<Tarea>? updatedTareas]) async {
+    final prefs = await SharedPreferences.getInstance();
+    String tareasJson = json.encode(
+      (updatedTareas ?? tareas).map((tarea) => tarea.toJson()).toList(),
+    );
+    await prefs.setString('tareas', tareasJson);
+  }
+
   Future<void> signOut() async {
-    await _authService.signOut(); // Cierra sesión en Firebase y Google.
-    Navigator.pushReplacementNamed(context, '/login_screen'); // Redirige a LoginScreen.
+    await _authService.signOut();
+    Navigator.pushReplacementNamed(context, '/login_screen');
   }
 
   @override
@@ -61,7 +86,6 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Cerrar sesión',
             onPressed: signOut,
           ),
         ],
@@ -69,7 +93,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           'Orden Trabajo de ${user?.displayName ?? 'Usuario'}',
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color.fromARGB(255, 221, 87, 78),
+        backgroundColor: const  Color(0xFF8B0000),
       ),
       body: FutureBuilder<List<Tarea>>(
         future: futureTareas,
@@ -81,7 +105,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No hay tareas disponibles'));
           } else {
-            List<Tarea> tareas = snapshot.data!;
+            tareas = snapshot.data!;
             List<Tarea> completadas = tareas.where((t) => t.completada).toList();
             List<Tarea> noCompletadas = tareas.where((t) => !t.completada).toList();
 
@@ -120,40 +144,12 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   }
 
   List<Widget> _buildTaskList(List<Tarea> tareas) {
-    tareas.sort((a, b) => a.posicion.compareTo(b.posicion));
-
     return tareas.map((tarea) {
-      int index = tareas.indexOf(tarea);
-      bool canComplete = index == 0 || tareas[index - 1].completada;
-      bool isCheckboxEnabled = checkboxHabilitado[tarea.id] ?? false;
-
       return ListTile(
-        title: Text(
-          '${tarea.posicion}. ${tarea.titulo}',
-          style: TextStyle(
-            color: tarea.completada
-                ? Colors.amber[900]
-                : canComplete
-                    ? Colors.black
-                    : Colors.black38,
-          ),
-        ),
-        subtitle: Row(
-          children: [
-            Icon(getIconForCategory(tarea.categoria), size: 20, color: Colors.grey),
-            const SizedBox(width: 8),
-            Text(tarea.categoria),
-          ],
-        ),
+        title: Text(tarea.titulo),
         trailing: Checkbox(
           value: tarea.completada,
-          onChanged: isCheckboxEnabled
-              ? (bool? value) {
-                  setState(() {
-                    tarea.completada = value ?? false;
-                  });
-                }
-              : null,
+          onChanged: null, // Deshabilitado para el usuario.
         ),
         onTap: () => _showTaskDetails(tarea),
       );
@@ -213,6 +209,14 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           ),
         );
     }
+}
+
+  void _markAsCompleted(Tarea tarea) {
+    setState(() {
+      tarea.completada = true; // Marcar como completada.
+    });
+    _saveTareas(); // Guardar el estado inmediatamente.
+    Navigator.pop(context); // Cerrar el formulario.
   }
 }
 

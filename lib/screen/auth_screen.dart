@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_app/my_day.dart';
+import 'package:todo_app/screen/my_day_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -17,7 +17,7 @@ class AuthScreen extends StatelessWidget {
             return MyDayScreen();
           }
           else{
-            return  LoginScreen();
+            return  const LoginScreen();
           }
         },
         ),
