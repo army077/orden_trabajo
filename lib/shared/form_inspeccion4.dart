@@ -1,14 +1,17 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioCalibracion extends StatefulWidget {
   final Tarea tarea;
-  final VoidCallback onCompletar; // Callback para notificar el cambio
+  final VoidCallback onCompletar; // Callback para notificar cambios
 
   const FormularioCalibracion({
     Key? key,
     required this.tarea,
-    required this.onCompletar, // Recibe la función de callback
+    required this.onCompletar,
   }) : super(key: key);
 
   @override
@@ -16,8 +19,10 @@ class FormularioCalibracion extends StatefulWidget {
 }
 
 class _FormularioCalibracionState extends State<FormularioCalibracion> {
-  String? opcionSeleccionada; // Almacena la opción seleccionada
-  bool botonHabilitado = false; // Controla si el botón "Completar" está activo
+  String? opcionSeleccionada;
+  bool botonHabilitado = false;
+  Uint8List? _imageBytes;
+  TextEditingController _descripcionController = TextEditingController();
 
   // Opciones de calibración
   final List<Map<String, dynamic>> opcionesCalibracion = [
@@ -29,66 +34,90 @@ class _FormularioCalibracionState extends State<FormularioCalibracion> {
   @override
   void initState() {
     super.initState();
-    // Inicializa la opción seleccionada si ya existe en la tarea
+    // Cargar valores iniciales
     opcionSeleccionada = widget.tarea.estadoCalibracion;
     botonHabilitado = opcionSeleccionada != null;
+
+    // Cargar imagen si existe
+    if (widget.tarea.base64 != null) {
+      _imageBytes = base64Decode(widget.tarea.base64!);
+    }
+
+    // Cargar descripción si existe
+    _descripcionController.text = widget.tarea.descripcion ?? '';
   }
 
-  // Método para completar la tarea y guardar los datos
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      Uint8List imageBytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = imageBytes;
+        widget.tarea.base64 = base64Encode(imageBytes); // Guardar en tarea
+      });
+    }
+  }
+
   void _completarTarea() {
     setState(() {
-      widget.tarea.estadoCalibracion = opcionSeleccionada; // Guardamos el estado
-      widget.tarea.completada = true; // Marcamos la tarea como completada
+      widget.tarea.estadoCalibracion = opcionSeleccionada;
+      widget.tarea.descripcion = _descripcionController.text;
+      widget.tarea.completada = true;
     });
+    widget.onCompletar(); // Notificar cambios
+    Navigator.pop(context); // Cerrar modal
+  }
 
-    widget.onCompletar(); // Notificamos para guardar los cambios
-    Navigator.pop(context); // Cerramos el modal
+  @override
+  void dispose() {
+    _descripcionController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título de la tarea
+          // Título
           Text(
             widget.tarea.titulo,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-          // Objetivo de la tarea
+          // Objetivo
           Text(
             'Objetivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Tiempo estimado
           Text(
             'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Selección de Calibración
+          // Estado de calibración
           Text(
             'Estado de Calibración:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
-
-          // Dropdown con opciones de calibración
+          const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: opcionSeleccionada, // Cargamos el valor inicial
-            decoration: InputDecoration(
+            value: opcionSeleccionada,
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona una opción',
             ),
@@ -101,35 +130,88 @@ class _FormularioCalibracionState extends State<FormularioCalibracion> {
             onChanged: (valor) {
               setState(() {
                 opcionSeleccionada = valor;
-                botonHabilitado = true; // Habilita el botón "Completar"
+                botonHabilitado = true;
               });
             },
-            validator: (valor) {
-              if (valor == null || valor.isEmpty) {
-                return 'Por favor selecciona una opción';
-              }
-              return null;
-            },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
+
+          // Selección de imagen
+          ElevatedButton(
+            onPressed: _pickImage,
+            child: const Text('Seleccionar Imagen'),
+          ),
+          const SizedBox(height: 16),
+
+          // Mostrar imagen seleccionada
+          if (_imageBytes != null)
+            GestureDetector(
+              onTap: () => _showImageDialog(context),
+              child: Image.memory(
+                _imageBytes!,
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          // Descripción de la imagen
+          TextField(
+            controller: _descripcionController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Descripción de la foto',
+              hintText: 'Escribe una descripción detallada',
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
 
           // Botón "Completar"
           Center(
             child: ElevatedButton(
               onPressed: botonHabilitado ? _completarTarea : null,
-              child: Text(
-                'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
+              child: const Text('Completar',
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Mostrar imagen en un diálogo
+  void _showImageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double width = constraints.maxWidth * 0.75;
+            double height = constraints.maxHeight * 0.75;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.memory(
+                  _imageBytes!,
+                  width: width,
+                  height: height,
+                  fit: BoxFit.contain,
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cerrar'),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

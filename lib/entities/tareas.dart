@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<List<Tarea>> fetchTareas() async {
-  final url = Uri.parse('https://teknia.app/api3/obtener_planes_trabajo_por_orden/10');
+  final url =
+      Uri.parse('https://teknia.app/api3/obtener_planes_trabajo_por_orden/10');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
@@ -25,21 +26,22 @@ class Tarea {
   final DateTime fechaCreacion;
 
   // Nuevos campos para guardar datos de los formularios
-  String? componente;      // Nombre del componente o equipo limpiado
-  String? estatus;          // Estado del trabajo realizado
-  String? opcionDanio;      // Opción seleccionada para daño
-  String? estadoEstetico;   // Estado estético
-  String? fueraDeRango;     // ¿Está fuera de rango?
-  double? limiteSuperior;   // Límite superior (numérico)
-  double? limiteInferior;   // Límite inferior (numérico)
-  String? unidadMedida;     // Unidad de medida
+  String? componente; // Nombre del componente o equipo limpiado
+  String? estatus; // Estado del trabajo realizado
+  String? opcionDanio; // Opción seleccionada para daño
+  String? estadoEstetico; // Estado estético
+  String? fueraDeRango; // ¿Está fuera de rango?
+  double? limiteSuperior; // Límite superior (numérico)
+  double? limiteInferior; // Límite inferior (numérico)
+  String? unidadMedida; // Unidad de medida
   String? estadoConexion;
-  String? incompleto;  
+  String? estadoCondicion;
+  String? incompleto;
   String? estadoCalibracion;
   String? estadoDesgaste;
   String? estadoFugas; // Estado de las fugas
-  
-
+  String? descripcion;
+  String? base64; // Nueva propiedad para la imagen en Base64.
 
   Tarea({
     required this.id,
@@ -60,10 +62,13 @@ class Tarea {
     this.limiteInferior,
     this.unidadMedida,
     this.estadoConexion,
+    this.estadoCondicion,
     this.incompleto,
     this.estadoCalibracion,
     this.estadoDesgaste,
     this.estadoFugas,
+    this.descripcion,
+    this.base64, // Inicializa en null por defecto.
   });
 
   // Deserialización de JSON a Tarea.
@@ -94,7 +99,10 @@ class Tarea {
       incompleto: json['incompleto'],
       estadoCalibracion: json['estado_calibracion'],
       estadoDesgaste: json['estado_desgaste'],
-       estadoFugas: json['estado_fugas'],
+      estadoFugas: json['estado_fugas'],
+      descripcion: json['descripcion'],
+      base64: json['base64'],
+      estadoCondicion: json['estadoCondicion'],
     );
   }
 
@@ -121,7 +129,10 @@ class Tarea {
       'estado_conexion': estadoConexion,
       'incompleto': incompleto,
       'estado_calibracion': estadoCalibracion,
-       'estado_fugas': estadoFugas,
+      'estado_fugas': estadoFugas,
+      'descripcion': descripcion,
+      'base64': base64,
+      'estadoCondicion': estadoCondicion,
     };
   }
 }

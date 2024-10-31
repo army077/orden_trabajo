@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioDesgaste extends StatefulWidget {
@@ -16,10 +19,11 @@ class FormularioDesgaste extends StatefulWidget {
 }
 
 class _FormularioDesgasteState extends State<FormularioDesgaste> {
-  String? opcionSeleccionada; // Almacena la opción seleccionada
-  bool botonHabilitado = false; // Controla si el botón está habilitado
+  String? opcionSeleccionada;
+  bool botonHabilitado = false;
+  Uint8List? _imageBytes; // Imagen seleccionada
+  final TextEditingController _descripcionController = TextEditingController();
 
-  // Opciones para evaluar el desgaste
   final List<Map<String, dynamic>> opcionesDesgaste = [
     {"valor": 1, "texto": "1 - Reemplazo inmediato sugerido"},
     {"valor": 2, "texto": "2 - Reemplazar próximamente"},
@@ -30,65 +34,93 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
   @override
   void initState() {
     super.initState();
-    // Inicializa el valor seleccionado si ya existe en la tarea
+    // Inicializa los valores con los existentes en la tarea.
     opcionSeleccionada = widget.tarea.estadoDesgaste;
-    botonHabilitado = opcionSeleccionada != null; // Habilita si ya tiene valor
+    botonHabilitado = opcionSeleccionada != null;
+    _descripcionController.text = widget.tarea.descripcion ?? '';
+
+    // Decodifica la imagen si existe en la tarea.
+    if (widget.tarea.base64 != null) {
+      _imageBytes = base64Decode(widget.tarea.base64!);
+    }
   }
 
-  // Método para completar la tarea y guardar los datos
+  // Selección de imagen desde la galería
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      Uint8List imageBytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = imageBytes;
+        widget.tarea.base64 = base64Encode(imageBytes); // Guardar en la tarea.
+      });
+    }
+  }
+
+  // Completar la tarea y guardar datos
   void _completarTarea() {
     if (opcionSeleccionada != null) {
       setState(() {
-        widget.tarea.estadoDesgaste = opcionSeleccionada; // Guardamos el valor
-        widget.tarea.completada = true; // Marcamos la tarea como completada
+        widget.tarea.estadoDesgaste = opcionSeleccionada;
+        widget.tarea.descripcion = _descripcionController.text;
+        widget.tarea.completada = true;
       });
 
-      widget.onCompletar(); // Notificamos el cambio
-      Navigator.pop(context); // Cerramos el modal
+      widget.onCompletar(); // Notifica los cambios
+      Navigator.pop(context); // Cierra el modal
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor selecciona una opción')),
+        const SnackBar(content: Text('Por favor selecciona una opción')),
       );
     }
   }
 
   @override
+  void dispose() {
+    _descripcionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Título de la tarea
           Text(
             widget.tarea.titulo,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           // Objetivo de la tarea
           Text(
             'Objetivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Selección del estado de desgaste
+          // Estado de Desgaste
           Text(
             'Estado de Desgaste:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-          // Dropdown con opciones de desgaste
+          // Dropdown de opciones de desgaste
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: opcionSeleccionada, // Carga el valor inicial
-            decoration: InputDecoration(
+            value: opcionSeleccionada,
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona el estado de desgaste',
             ),
@@ -104,30 +136,72 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
                 botonHabilitado = true; // Habilita el botón
               });
             },
-            validator: (valor) {
-              if (valor == null || valor.isEmpty) {
-                return 'Por favor selecciona una opción';
-              }
-              return null;
-            },
+            validator: (valor) =>
+                valor == null ? 'Por favor selecciona una opción' : null,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Botón "Completar"
+          // Descripción
+          TextField(
+            controller: _descripcionController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Descripción',
+              hintText: 'Escribe una descripción detallada',
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+
+          // Selección de Imagen
+          ElevatedButton(
+            onPressed: _pickImage,
+            child: const Text('Seleccionar Imagen'),
+          ),
+          const SizedBox(height: 16),
+
+          // Mostrar Imagen Seleccionada
+          if (_imageBytes != null)
+            GestureDetector(
+              onTap: () => _showImageDialog(context),
+              child: Image.memory(
+                _imageBytes!,
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          // Botón Completar
           Center(
             child: ElevatedButton(
               onPressed: botonHabilitado ? _completarTarea : null,
-              child: Text(
-                'Completar',
-                style: TextStyle(color: Colors.white),
-              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
+              child: const Text('Completar',
+                  style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Diálogo para mostrar la imagen
+  void _showImageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Image.memory(
+          _imageBytes!,
+          width: MediaQuery.of(context).size.width * 0.75,
+          height: MediaQuery.of(context).size.height * 0.75,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

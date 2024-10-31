@@ -1,14 +1,17 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import '../entities/tareas.dart'; // Importa la entidad Tarea
+import 'package:image_picker/image_picker.dart';
+import '../entities/tareas.dart'; // Importa la entidad Tarea.
 
 class FormularioIncompleto extends StatefulWidget {
   final Tarea tarea;
-  final VoidCallback onCompletar; // Callback para notificar el cambio
+  final VoidCallback onCompletar;
 
   const FormularioIncompleto({
     Key? key,
     required this.tarea,
-    required this.onCompletar, // Recibe la función de callback
+    required this.onCompletar,
   }) : super(key: key);
 
   @override
@@ -16,70 +19,98 @@ class FormularioIncompleto extends StatefulWidget {
 }
 
 class _FormularioIncompletoState extends State<FormularioIncompleto> {
-  String? opcionSeleccionada; // Almacena la opción seleccionada
+  String? opcionSeleccionada;
+  Uint8List? _imageBytes;
+  TextEditingController _descripcionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Inicializa la opción seleccionada si ya existe en la tarea
+    // Inicializa la opción seleccionada
     opcionSeleccionada = widget.tarea.incompleto ?? "No";
+
+    // Cargar imagen si ya existe en la tarea.
+    if (widget.tarea.base64 != null) {
+      _imageBytes = base64Decode(widget.tarea.base64!);
+    }
+
+    // Cargar descripción si ya existe en la tarea.
+    _descripcionController.text = widget.tarea.descripcion ?? '';
   }
 
-  // Método para completar la tarea y guardar los datos
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      Uint8List imageBytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = imageBytes;
+        widget.tarea.base64 = base64Encode(imageBytes); // Guardar imagen.
+      });
+    }
+  }
+
   void _completarTarea() {
     setState(() {
-      widget.tarea.incompleto = opcionSeleccionada; // Guardamos la opción seleccionada
-      widget.tarea.completada = true; // Marcamos la tarea como completada
+      widget.tarea.incompleto = opcionSeleccionada;
+      widget.tarea.descripcion = _descripcionController.text;
+      widget.tarea.completada = true; // Marca la tarea como completada.
     });
 
-    widget.onCompletar(); // Notificamos para guardar los cambios
-    Navigator.pop(context); // Cerramos el modal
+    widget.onCompletar(); // Notifica los cambios.
+    Navigator.pop(context); // Cierra el modal.
+  }
+
+  @override
+  void dispose() {
+    _descripcionController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título de la tarea
+          // Título de la tarea.
           Text(
             widget.tarea.titulo,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-          // Objetivo de la tarea
+          // Objetivo de la tarea.
           Text(
             'Objetivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Tiempo estimado
+          // Tiempo estimado.
           Text(
             'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Selección Binaria: ¿Incompleto?
-          Text(
+          // Selección binaria: ¿Incompleto?
+          const Text(
             '¿Incompleto?',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
-
-          // Radio Buttons para "Sí" / "No"
+          const SizedBox(height: 8),
           Column(
             children: [
               RadioListTile<String>(
-                title: Text('Sí'),
+                title: const Text('Sí'),
                 value: 'Sí',
                 groupValue: opcionSeleccionada,
                 onChanged: (valor) {
@@ -89,7 +120,7 @@ class _FormularioIncompletoState extends State<FormularioIncompleto> {
                 },
               ),
               RadioListTile<String>(
-                title: Text('No'),
+                title: const Text('No'),
                 value: 'No',
                 groupValue: opcionSeleccionada,
                 onChanged: (valor) {
@@ -100,26 +131,85 @@ class _FormularioIncompletoState extends State<FormularioIncompleto> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
 
-          SizedBox(height: 16),
+          // Botón para seleccionar imagen.
+          ElevatedButton(
+            onPressed: _pickImage,
+            child: const Text('Seleccionar Imagen'),
+          ),
+          const SizedBox(height: 16),
 
-          // Botón "Completar"
+          // Mostrar imagen seleccionada.
+          if (_imageBytes != null)
+            GestureDetector(
+              onTap: () => _showImageDialog(context),
+              child: Image.memory(
+                _imageBytes!,
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          // Campo de descripción.
+          TextField(
+            controller: _descripcionController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Descripción de la foto',
+              hintText: 'Escribe una descripción detallada',
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+
+          // Botón "Completar".
           Center(
             child: ElevatedButton(
               onPressed: _completarTarea,
-              child: Text(
-                'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
+              child: const Text('Completar',
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Mostrar imagen en un diálogo.
+  void _showImageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double width = constraints.maxWidth * 0.75;
+            double height = constraints.maxHeight * 0.75;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.memory(
+                  _imageBytes!,
+                  width: width,
+                  height: height,
+                  fit: BoxFit.contain,
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cerrar'),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

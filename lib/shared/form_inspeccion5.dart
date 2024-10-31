@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioFueraDeRango extends StatefulWidget {
@@ -8,7 +11,7 @@ class FormularioFueraDeRango extends StatefulWidget {
   const FormularioFueraDeRango({
     Key? key,
     required this.tarea,
-    required this.onCompletar, // Recibe la función de callback
+    required this.onCompletar,
   }) : super(key: key);
 
   @override
@@ -17,75 +20,131 @@ class FormularioFueraDeRango extends StatefulWidget {
 
 class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
   String opcionSeleccionada = "No"; // Valor predeterminado
+  bool botonHabilitado = false;
+  Uint8List? _imageBytes; // Imagen seleccionada
+
   final TextEditingController _limiteSuperiorController =
       TextEditingController();
   final TextEditingController _limiteInferiorController =
       TextEditingController();
   final TextEditingController _unidadMedidaController = TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
 
-  bool botonHabilitado = false; // Controla el estado del botón "Completar"
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa los campos con los datos existentes de la tarea.
+    opcionSeleccionada = widget.tarea.fueraDeRango ?? "No";
+    _limiteSuperiorController.text =
+        widget.tarea.limiteSuperior?.toString() ?? '';
+    _limiteInferiorController.text =
+        widget.tarea.limiteInferior?.toString() ?? '';
+    _unidadMedidaController.text = widget.tarea.unidadMedida ?? '';
+    _descripcionController.text = widget.tarea.descripcion ?? '';
 
-  // Valida si el formulario está completo para habilitar el botón
+    if (widget.tarea.base64 != null) {
+      _imageBytes = base64Decode(widget.tarea.base64!);
+    }
+    _validarFormulario(); // Validamos al inicio.
+  }
+
+  // Validación de los campos
   void _validarFormulario() {
     setState(() {
-      botonHabilitado = _limiteSuperiorController.text.isNotEmpty &&
-          _limiteInferiorController.text.isNotEmpty &&
+      botonHabilitado = _esDouble(_limiteSuperiorController.text) &&
+          _esDouble(_limiteInferiorController.text) &&
           _unidadMedidaController.text.isNotEmpty;
     });
   }
 
-  // Método para completar la tarea y cerrar el modal
+  // Verifica si un valor es convertible a double
+  bool _esDouble(String value) {
+    return double.tryParse(value) != null;
+  }
+
+  // Selección de imagen desde la galería
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      Uint8List imageBytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = imageBytes;
+        widget.tarea.base64 = base64Encode(imageBytes); // Guardar en la tarea.
+      });
+    }
+  }
+
+  // Completar la tarea y guardar datos
   void _completarTarea() {
     if (botonHabilitado) {
       setState(() {
-        widget.tarea.completada = true; // Marca la tarea como completada
+        widget.tarea.fueraDeRango = opcionSeleccionada;
+        widget.tarea.limiteSuperior =
+            double.parse(_limiteSuperiorController.text);
+        widget.tarea.limiteInferior =
+            double.parse(_limiteInferiorController.text);
+        widget.tarea.unidadMedida = _unidadMedidaController.text;
+        widget.tarea.descripcion = _descripcionController.text;
+        widget.tarea.completada = true;
       });
-      widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
-      Navigator.pop(context); // Cierra el modal
+
+      widget.onCompletar(); // Notificamos los cambios
+      Navigator.pop(context); // Cerrar modal
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor completa todos los campos')),
+        const SnackBar(
+            content: Text('Por favor completa todos los campos correctamente')),
       );
     }
   }
 
   @override
+  void dispose() {
+    _limiteSuperiorController.dispose();
+    _limiteInferiorController.dispose();
+    _unidadMedidaController.dispose();
+    _descripcionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título de la tarea
+          // Título
           Text(
             widget.tarea.titulo,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-          // Objetivo de la tarea
+          // Objetivo
           Text(
             'Objetivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Selección Binaria: ¿Fuera de Rango?
+          // ¿Fuera de Rango?
           Text(
             '¿Fuera de Rango?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
-
-          // Radio Buttons para "Sí" / "No"
+          const SizedBox(height: 8),
           Column(
             children: [
               RadioListTile<String>(
-                title: Text('Sí'),
+                title: const Text('Sí'),
                 value: 'Sí',
                 groupValue: opcionSeleccionada,
                 onChanged: (valor) {
@@ -95,7 +154,7 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
                 },
               ),
               RadioListTile<String>(
-                title: Text('No'),
+                title: const Text('No'),
                 value: 'No',
                 groupValue: opcionSeleccionada,
                 onChanged: (valor) {
@@ -106,72 +165,75 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Campo de texto para Límite Superior
-          Text(
-            'Límite Superior:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          TextFormField(
+          // Límite Superior
+          _buildTextField(
             controller: _limiteSuperiorController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Ingrese el límite superior',
-            ),
-            onChanged: (_) => _validarFormulario(),
+            label: 'Límite Superior',
+            hint: 'Ingrese el límite superior',
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Campo de texto para Límite Inferior
-          Text(
-            'Límite Inferior:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          TextFormField(
+          // Límite Inferior
+          _buildTextField(
             controller: _limiteInferiorController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Ingrese el límite inferior',
-            ),
-            onChanged: (_) => _validarFormulario(),
+            label: 'Límite Inferior',
+            hint: 'Ingrese el límite inferior',
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Campo de texto para Unidad de Medida
-          Text(
-            'Unidad de Medida:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          TextFormField(
+          // Unidad de Medida
+          _buildTextField(
             controller: _unidadMedidaController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Ingrese la unidad de medida',
-            ),
-            onChanged: (_) => _validarFormulario(),
+            label: 'Unidad de Medida',
+            hint: 'Ingrese la unidad de medida',
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-          // Botón "Completar"
+          // Descripción
+          TextField(
+            controller: _descripcionController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Descripción',
+              hintText: 'Escriba una descripción detallada',
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+
+          // Selección de Imagen
+          ElevatedButton(
+            onPressed: _pickImage,
+            child: const Text('Seleccionar Imagen'),
+          ),
+          const SizedBox(height: 16),
+
+          // Mostrar Imagen Seleccionada
+          if (_imageBytes != null)
+            GestureDetector(
+              onTap: () => _showImageDialog(context),
+              child: Image.memory(
+                _imageBytes!,
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          // Botón Completar
           Center(
             child: ElevatedButton(
               onPressed: botonHabilitado ? _completarTarea : null,
-              child: Text(
-                'Completar',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
+              child: const Text('Completar',
+                  style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
@@ -179,11 +241,36 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
     );
   }
 
-  @override
-  void dispose() {
-    _limiteSuperiorController.dispose();
-    _limiteInferiorController.dispose();
-    _unidadMedidaController.dispose();
-    super.dispose();
+  // Método para construir TextFields reutilizables
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
+        labelText: label,
+        hintText: hint,
+      ),
+      onChanged: (_) => _validarFormulario(),
+    );
+  }
+
+  // Diálogo para mostrar la imagen
+  void _showImageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Image.memory(
+          _imageBytes!,
+          width: MediaQuery.of(context).size.width * 0.75,
+          height: MediaQuery.of(context).size.height * 0.75,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
   }
 }
