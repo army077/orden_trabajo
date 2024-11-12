@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_app/functions/generate_pdf_function.dart';
 import 'package:todo_app/services/auth_service.dart';
 import '../entities/tareas.dart';
 import '../shared/form_inspeccion1.dart';
@@ -20,6 +21,8 @@ import '../shared/form_reemplazo10.dart';
 import '../shared/form_ajuste11.dart';
 import '../shared/form_inspeccion12.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class MyDayScreen extends StatefulWidget {
   @override
@@ -84,36 +87,6 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     Navigator.pushReplacementNamed(context, '/login_screen');
   }
 
-void enviar(List<Tarea> tareasCompletadas) async {
-  try {
-    // Filtrar solo las tareas completadas
-    List<Map<String, dynamic>> completadas = tareasCompletadas
-        .where((tarea) => tarea.completada)
-        .map((tarea) => tarea.toJson())
-        .toList();
-
-    // Convertir las tareas a JSON y luego a String para guardar en el archivo
-    String tareasCompletadasString = jsonEncode(completadas);
-
-    // Obtener el directorio de documentos para almacenar el archivo
-    Directory directory = await getApplicationDocumentsDirectory();
-    String filePath = '${directory.path}/tareas_completadas.txt';
-
-    // Crear el archivo y escribir las tareas completadas
-    File file = File(filePath);
-    await file.writeAsString(tareasCompletadasString);
-
-    // Compartir el archivo usando share_plus
-    final xFile = XFile(filePath);
-    await Share.shareXFiles([xFile], text: 'Aquí están las tareas completadas');
-
-    print('Tareas completadas guardadas y enviadas desde: $filePath');
-  } catch (e) {
-    print('Error al guardar o enviar las tareas en un archivo: $e');
-  }
-}
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,13 +133,14 @@ void enviar(List<Tarea> tareasCompletadas) async {
         },
       ),
       floatingActionButton: FloatingActionButton(
-       onPressed: () => enviar(tareas),
+       onPressed: () => sendTasksToGeneratePdf(tareas),
         backgroundColor: const Color(0xFF8B0000),
         foregroundColor: const Color.fromARGB(255, 255, 255, 255),
         child: const Icon(Icons.send),
       ),
     );
   }
+  
 
   Widget _buildSectionTitle(String title, IconData icon) {
     return Padding(

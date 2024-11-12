@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/prueba_foto': (context) => const PruebasFotoScreen(),
+        '/prueba_foto': (context) => const PruebasFotoScreen(imageUrl: '',),
         '/': (context) => const AuthScreen(),
         '/my_day_screen': (context) =>  MyDayScreen(),
         '/login_screen': (context) => const LoginScreen(),

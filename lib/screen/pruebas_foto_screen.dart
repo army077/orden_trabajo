@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class PruebasFotoScreen extends StatelessWidget {
-  const PruebasFotoScreen({super.key});
+  final String imageUrl; // Agrega una variable para la URL
+
+  // Constructor que recibe la URL de la imagen
+  const PruebasFotoScreen({Key? key, required this.imageUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +14,7 @@ class PruebasFotoScreen extends StatelessWidget {
       ),
       body: Center(
         child: Image.network(
-          'https://firebasestorage.googleapis.com/v0/b/loginfirebase-9d539.firebasestorage.app/o/reports%2FMaximiliano-1731425526866.jpg?alt=media&token=0afc4f33-6380-4091-8e36-85a18ec7534f',
+          imageUrl,
           loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
             if (loadingProgress == null) {
               return child;
