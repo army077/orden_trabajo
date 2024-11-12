@@ -59,32 +59,32 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
           // Título de la tarea
           Text(
             widget.tarea.titulo,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           // Objetivo de la tarea
-          Text(
+          const Text(
             'Objetivo:',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Campo de texto para el componente o equipo
-          Text(
+          const Text(
             'Componente o equipo limpiado:',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           TextFormField(
             controller: _componenteController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Nombre del componente o equipo',
             ),
@@ -94,19 +94,19 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
               });
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Selección del estatus de limpieza
-          Text(
+          const Text(
             'Estatus de la limpieza:',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           DropdownButtonFormField<String>(
             isExpanded: true,
             value: opcionSeleccionada,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Selecciona un estatus',
             ),
@@ -129,19 +129,19 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
               return null;
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Botón "Completar"
           Center(
             child: ElevatedButton(
               onPressed: botonHabilitado ? _completarTarea : null,
-              child: Text(
+              child: const Text(
                 'Completar',
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
             ),
           ),

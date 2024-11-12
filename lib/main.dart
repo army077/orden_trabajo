@@ -4,6 +4,7 @@ import 'package:todo_app/firebase/firebase_options.dart';
 import 'package:todo_app/screen/my_day_screen.dart';
 import 'package:todo_app/screen/auth_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
+import 'package:todo_app/screen/pruebas_foto_screen.dart';
 
 void main() async {
 WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
+        '/prueba_foto': (context) => const PruebasFotoScreen(),
         '/': (context) => const AuthScreen(),
         '/my_day_screen': (context) =>  MyDayScreen(),
         '/login_screen': (context) => const LoginScreen(),

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioComponente extends StatefulWidget {
@@ -17,8 +19,7 @@ class FormularioComponente extends StatefulWidget {
 
 class _FormularioComponenteState extends State<FormularioComponente> {
   String? opcionSeleccionada; // Almacena la opción seleccionada
-  bool botonHabilitado =
-      false; // Controla si el botón "Completar" está habilitado
+  bool botonHabilitado = false; // Controla si el botón "Completar" está habilitado
 
   // Opciones para la tarea del componente o equipo
   final List<Map<String, dynamic>> opcionesComponente = [
@@ -28,13 +29,44 @@ class _FormularioComponenteState extends State<FormularioComponente> {
     {"valor": 4, "texto": "4 - Terminada"},
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTaskState(); // Carga el estado inicial de la tarea
+  }
+
+  // Cargar estado guardado de la tarea
+  Future<void> _loadTaskState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tareaData = prefs.getString(widget.tarea.id.toString());
+
+    if (tareaData != null) {
+      final Map<String, dynamic> tareaMap = jsonDecode(tareaData);
+      setState(() {
+        opcionSeleccionada = tareaMap['estadoComponente'];
+        widget.tarea.completada = tareaMap['completada'] ?? false;
+        botonHabilitado = opcionSeleccionada != null;
+      });
+    }
+  }
+
+  // Guardar el estado de la tarea en SharedPreferences
+  Future<void> _saveTaskState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tareaData = {
+      'estadoComponente': opcionSeleccionada,
+      'completada': widget.tarea.completada,
+    };
+    prefs.setString(widget.tarea.id.toString(), jsonEncode(tareaData));
+  }
+
   // Método para completar la tarea
   void _completarTarea() {
     if (opcionSeleccionada != null) {
       setState(() {
         widget.tarea.completada = true; // Marca la tarea como completada
       });
-
+      _saveTaskState(); // Guardar el estado al completar la tarea
       widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista
       Navigator.pop(context); // Cierra el modal
     } else {
@@ -78,6 +110,7 @@ class _FormularioComponenteState extends State<FormularioComponente> {
 
           // Dropdown con opciones del estado del componente
           DropdownButtonFormField<String>(
+            value: opcionSeleccionada,
             isExpanded: true,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
@@ -92,9 +125,10 @@ class _FormularioComponenteState extends State<FormularioComponente> {
             onChanged: (valor) {
               setState(() {
                 opcionSeleccionada = valor;
-                botonHabilitado =
-                    true; // Habilita el botón al seleccionar una opción
+                botonHabilitado = true;
+                widget.tarea.estadoCondicion = valor; // Guarda la selección en la tarea
               });
+              _saveTaskState(); // Guardar el estado cada vez que se cambia una opción
             },
             validator: (valor) {
               if (valor == null || valor.isEmpty) {

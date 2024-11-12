@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/services/auth_service.dart';
 import '../entities/tareas.dart';
@@ -17,6 +19,7 @@ import '../shared/form_inspeccion9.dart';
 import '../shared/form_reemplazo10.dart';
 import '../shared/form_ajuste11.dart';
 import '../shared/form_inspeccion12.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MyDayScreen extends StatefulWidget {
   @override
@@ -81,6 +84,36 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     Navigator.pushReplacementNamed(context, '/login_screen');
   }
 
+void enviar(List<Tarea> tareasCompletadas) async {
+  try {
+    // Filtrar solo las tareas completadas
+    List<Map<String, dynamic>> completadas = tareasCompletadas
+        .where((tarea) => tarea.completada)
+        .map((tarea) => tarea.toJson())
+        .toList();
+
+    // Convertir las tareas a JSON y luego a String para guardar en el archivo
+    String tareasCompletadasString = jsonEncode(completadas);
+
+    // Obtener el directorio de documentos para almacenar el archivo
+    Directory directory = await getApplicationDocumentsDirectory();
+    String filePath = '${directory.path}/tareas_completadas.txt';
+
+    // Crear el archivo y escribir las tareas completadas
+    File file = File(filePath);
+    await file.writeAsString(tareasCompletadasString);
+
+    // Compartir el archivo usando share_plus
+    final xFile = XFile(filePath);
+    await Share.shareXFiles([xFile], text: 'Aquí están las tareas completadas');
+
+    print('Tareas completadas guardadas y enviadas desde: $filePath');
+  } catch (e) {
+    print('Error al guardar o enviar las tareas en un archivo: $e');
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,6 +159,12 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+       onPressed: () => enviar(tareas),
+        backgroundColor: const Color(0xFF8B0000),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        child: const Icon(Icons.send),
+      ),
     );
   }
 
@@ -148,7 +187,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   List<Widget> _buildTaskList(List<Tarea> tareas) {
     return tareas.map((tarea) {
       return ListTile(
-        leading: Icon(getIconForCategory(tarea.categoria)), // Ícono basado en la categoría
+        leading: Icon(getIconForCategory(tarea.categoria)),
         title: Text(tarea.titulo),
         trailing: Checkbox(
           value: tarea.completada,
@@ -156,7 +195,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
             setState(() {
               tarea.completada = value ?? false;
             });
-            _saveTareas(); // Guardar inmediatamente después de cambiar el estado
+            _saveTareas();
           },
         ),
         onTap: () => _showTaskDetails(tarea),
@@ -230,6 +269,8 @@ IconData getIconForCategory(String categoria) {
       return Icons.search;
     case 'verificación':
       return Icons.check;
+    case 'limpieza':
+      return Icons.cleaning_services;
     default:
       return Icons.task_alt;
   }
