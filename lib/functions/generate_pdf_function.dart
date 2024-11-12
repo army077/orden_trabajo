@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:todo_app/entities/tareas.dart';
+import 'package:todo_app/screen/pdf_viewer_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future<void> sendTasksToGeneratePdf(List<Tarea> tasks) async {
+Future<void> sendTasksToGeneratePdf(BuildContext context, List<Tarea> tasks) async {
   final url = Uri.parse('https://us-central1-loginfirebase-9d539.cloudfunctions.net/generatePdfFromTasksv2');
   final headers = {"Content-Type": "application/json"};
 
@@ -17,12 +19,27 @@ Future<void> sendTasksToGeneratePdf(List<Tarea> tasks) async {
     final jsonResponse = jsonDecode(response.body);
     final pdfUrl = jsonResponse['fileUrl'];
     print("PDF generado y guardado en Firebase Storage: $pdfUrl");
-    abrirPDF(pdfUrl);
-    return pdfUrl;
+
+    if (pdfUrl != null && pdfUrl.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFViewerPage(pdfUrl: pdfUrl),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: La URL del PDF no está disponible')),
+      );
+    }
   } else {
     print("Error al generar el PDF: ${response.body}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al generar el PDF: ${response.body}')),
+    );
   }
 }
+
 
 Future<void> abrirPDF(String url) async {
   final Uri uri = Uri.parse(url);

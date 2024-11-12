@@ -132,12 +132,14 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-       onPressed: () => sendTasksToGeneratePdf(tareas),
-        backgroundColor: const Color(0xFF8B0000),
-        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-        child: const Icon(Icons.send),
-      ),
+          floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            await sendTasksToGeneratePdf(context, tareas);
+          },
+          backgroundColor: const Color(0xFF8B0000),
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.send),
+        ),
     );
   }
   
