@@ -23,7 +23,6 @@ import '../shared/form_inspeccion12.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class MyDayScreen extends StatefulWidget {
   @override
   _MyDayScreenState createState() => _MyDayScreenState();
@@ -35,6 +34,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   late Future<List<Tarea>> futureTareas;
   final AuthService _authService = AuthService();
   List<Tarea> tareas = [];
+  bool _isLoading = false; // Variable de estado para el indicador de carga
 
   @override
   void initState() {
@@ -54,8 +54,6 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
       _saveTareas(); // Guardamos las tareas al salir
-
-      // Redirigir a la pantalla de login para autenticación biométrica
       Navigator.pushReplacementNamed(context, '/login_screen');
     }
   }
@@ -85,6 +83,22 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   Future<void> signOut() async {
     await _authService.signOut();
     Navigator.pushReplacementNamed(context, '/login_screen');
+  }
+
+  Future<void> sendTasksToGeneratePdfWithLoading() async {
+    setState(() {
+      _isLoading = true; // Activa el indicador de carga
+    });
+
+    try {
+      await sendTasksToGeneratePdf(context, tareas, 'maximiliano.martinez@bladecsi.com');
+    } catch (e) {
+      print("Error al generar el PDF: $e");
+    } finally {
+      setState(() {
+        _isLoading = false; // Desactiva el indicador de carga
+      });
+    }
   }
 
   @override
@@ -132,17 +146,18 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
           }
         },
       ),
-          floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await sendTasksToGeneratePdf(context, tareas);
-          },
-          backgroundColor: const Color(0xFF8B0000),
-          foregroundColor: Colors.white,
-          child: const Icon(Icons.send),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _isLoading ? null : sendTasksToGeneratePdfWithLoading,
+        backgroundColor: const Color(0xFF8B0000),
+        foregroundColor: Colors.white,
+        child: _isLoading
+            ? const CircularProgressIndicator(
+                color: Colors.white,
+              )
+            : const Icon(Icons.send),
+      ),
     );
   }
-  
 
   Widget _buildSectionTitle(String title, IconData icon) {
     return Padding(

@@ -2,6 +2,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:todo_app/screen/my_day_screen.dart';
+import 'package:todo_app/services/auth_service.dart';
+import 'dart:io';
+import 'package:intl/intl.dart';
 
 class PDFViewerPage extends StatefulWidget {
   final String pdfUrl;
@@ -49,6 +55,30 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
     }
   }
 
+ Future<void> _sharePdf() async {
+  try {
+    // Descarga el PDF
+    final pdfData = await fetchPdf(widget.pdfUrl);
+
+    // Obtiene el nombre del usuario o usa un nombre genérico
+    final userName = user?.displayName ?? 'Usuario';
+    
+    // Obtiene la fecha actual en un formato válido para archivos
+    final currentDate = DateFormat('dd-MMM-yyyy', 'es').format(DateTime.now());
+
+    // Guarda el PDF en almacenamiento temporal con el nombre del usuario y la fecha
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/${userName}_$currentDate.pdf');
+    await file.writeAsBytes(pdfData);
+
+    // Usa share_plus para compartir el PDF
+    await Share.shareXFiles([XFile(file.path)], text: 'Aquí tienes el documento PDF.');
+  } catch (e) {
+    setState(() {
+      _errorMessage = "Error al compartir el PDF: $e";
+    });
+  }
+}
   @override
   void dispose() {
     _pdfController.dispose();
@@ -61,6 +91,12 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
       appBar: AppBar(
         title: const Text('Vista de PDF'),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share, color: Color(0xFF8B0000),),
+            onPressed: _isLoading ? null : _sharePdf,
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

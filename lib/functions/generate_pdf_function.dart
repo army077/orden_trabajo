@@ -5,14 +5,17 @@ import 'package:todo_app/entities/tareas.dart';
 import 'package:todo_app/screen/pdf_viewer_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future<void> sendTasksToGeneratePdf(BuildContext context, List<Tarea> tasks) async {
-  final url = Uri.parse('https://us-central1-loginfirebase-9d539.cloudfunctions.net/generatePdfFromTasksv2');
+Future<void> sendTasksToGeneratePdf(BuildContext context, List<Tarea> tasks, String recipientEmail) async {
+  final url = Uri.parse('https://us-central1-loginfirebase-9d539.cloudfunctions.net/generatePdfFromTasksv3');
   final headers = {"Content-Type": "application/json"};
 
   final response = await http.post(
     url,
     headers: headers,
-    body: jsonEncode(tasks.map((task) => task.toJson()).toList()),
+    body: jsonEncode({
+      "tasks": tasks.map((task) => task.toJson()).toList(),
+      "email": recipientEmail,
+    }),
   );
 
   if (response.statusCode == 200) {
@@ -21,6 +24,7 @@ Future<void> sendTasksToGeneratePdf(BuildContext context, List<Tarea> tasks) asy
     print("PDF generado y guardado en Firebase Storage: $pdfUrl");
 
     if (pdfUrl != null && pdfUrl.isNotEmpty) {
+      // Navega al visor de PDF en la app
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -39,7 +43,6 @@ Future<void> sendTasksToGeneratePdf(BuildContext context, List<Tarea> tasks) asy
     );
   }
 }
-
 
 Future<void> abrirPDF(String url) async {
   final Uri uri = Uri.parse(url);
