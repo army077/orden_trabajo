@@ -54,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 20,),
                     Text(
                       user != null
                           ? '¡Bienvenido, ${user.displayName}!'
@@ -65,6 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
+                    Image.asset('lib/images/dragon.png', height: 100,),
+                    const SizedBox(height: 40),
                     const Text(
                       'Por favor inicia sesión para continuar',
                       style: TextStyle(
@@ -72,7 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 250),
+                    
+                    const SizedBox(height: 150),
                     if (user != null)
                       ElevatedButton.icon(
                         onPressed: _checkBiometricAndAuthenticate,

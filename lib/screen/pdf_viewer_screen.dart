@@ -60,7 +60,7 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vista de PDF'),
-        backgroundColor: Colors.grey[900],
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
