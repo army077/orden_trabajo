@@ -76,7 +76,7 @@ Future<List<Tarea>> _loadTareas(int id) async {
     List<dynamic> data = json.decode(tareasJson);
     return data.map((json) => Tarea.fromJson(json)).toList();
   }
-
+//d
   // Si no hay datos en cache, llama a la API
   print('Cargando tareas desde la API para ID: $id');
   try {
