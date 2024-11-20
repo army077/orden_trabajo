@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
@@ -7,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/screen/my_day_screen.dart';
 import 'package:todo_app/services/auth_service.dart';
 import 'dart:io';
-import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class PDFViewerPage extends StatefulWidget {
   final String pdfUrl;
@@ -55,14 +56,17 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
     }
   }
 
- Future<void> _sharePdf() async {
+Future<void> _sharePdf() async {
   try {
+    // Inicializa la localización para la fecha
+    await initializeDateFormatting('es', null);
+
     // Descarga el PDF
     final pdfData = await fetchPdf(widget.pdfUrl);
 
     // Obtiene el nombre del usuario o usa un nombre genérico
     final userName = user?.displayName ?? 'Usuario';
-    
+
     // Obtiene la fecha actual en un formato válido para archivos
     final currentDate = DateFormat('dd-MMM-yyyy', 'es').format(DateTime.now());
 
@@ -79,6 +83,7 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
     });
   }
 }
+
   @override
   void dispose() {
     _pdfController.dispose();
@@ -89,7 +94,7 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vista de PDF       Compartir ->'),
+        title: const Text('Vista de PDF'),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         actions: [
           IconButton(
