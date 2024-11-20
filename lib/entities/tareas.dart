@@ -8,6 +8,7 @@ Future<List<Tarea>> fetchTareas() async {
 
   if (response.statusCode == 200) {
     List<dynamic> data = json.decode(response.body);
+    print(data);
     return data.map((json) => Tarea.fromJson(json)).toList();
   } else {
     throw Exception('Error al cargar las tareas');

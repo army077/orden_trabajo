@@ -27,8 +27,9 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
       TextEditingController();
   final TextEditingController _limiteInferiorController =
       TextEditingController();
-  final TextEditingController _unidadMedidaController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
+
+  String? unidadMedidaSeleccionada; // Unidad de medida seleccionada
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
         widget.tarea.limiteSuperior?.toString() ?? '';
     _limiteInferiorController.text =
         widget.tarea.limiteInferior?.toString() ?? '';
-    _unidadMedidaController.text = widget.tarea.unidadMedida ?? '';
+    unidadMedidaSeleccionada = widget.tarea.unidadMedida ?? '';
     _descripcionController.text = widget.tarea.descripcion ?? '';
 
     if (widget.tarea.base64 != null) {
@@ -53,7 +54,7 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
     setState(() {
       botonHabilitado = _esDouble(_limiteSuperiorController.text) &&
           _esDouble(_limiteInferiorController.text) &&
-          _unidadMedidaController.text.isNotEmpty;
+          unidadMedidaSeleccionada != null;
     });
   }
 
@@ -85,7 +86,7 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
             double.parse(_limiteSuperiorController.text);
         widget.tarea.limiteInferior =
             double.parse(_limiteInferiorController.text);
-        widget.tarea.unidadMedida = _unidadMedidaController.text;
+        widget.tarea.unidadMedida = unidadMedidaSeleccionada;
         widget.tarea.descripcion = _descripcionController.text;
         widget.tarea.completada = true;
       });
@@ -104,7 +105,6 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
   void dispose() {
     _limiteSuperiorController.dispose();
     _limiteInferiorController.dispose();
-    _unidadMedidaController.dispose();
     _descripcionController.dispose();
     super.dispose();
   }
@@ -183,11 +183,28 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
           ),
           const SizedBox(height: 16),
 
-          // Unidad de Medida
-          _buildTextField(
-            controller: _unidadMedidaController,
-            label: 'Unidad de Medida',
-            hint: 'Ingrese la unidad de medida',
+          // Unidad de Medida (Dropdown)
+          DropdownButtonFormField<String>(
+            value: unidadMedidaSeleccionada,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Unidad de Medida',
+              hintText: 'Seleccione una unidad de medida',
+            ),
+            items: const [
+              DropdownMenuItem(value: '', child: Text('')),
+              DropdownMenuItem(value: 'cm', child: Text('cm')),
+              DropdownMenuItem(value: 'mts', child: Text('mts')),
+              DropdownMenuItem(value: 'volts', child: Text('volts')),
+              DropdownMenuItem(value: 'amp', child: Text('amp')),
+              DropdownMenuItem(value: 'litros', child: Text('litros')),
+            ],
+            onChanged: (String? value) {
+              setState(() {
+                unidadMedidaSeleccionada = value;
+              });
+              _validarFormulario();
+            },
           ),
           const SizedBox(height: 16),
 

@@ -56,7 +56,8 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
       _saveTareas(); // Guardamos las tareas al salir
       Navigator.pushReplacementNamed(context, '/login_screen');
     }
@@ -95,7 +96,8 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     });
 
     try {
-      await sendTasksToGeneratePdf(context, tareas, 'maximiliano.martinez@bladecsi.com');
+      await sendTasksToGeneratePdf(
+          context, tareas, 'maximiliano.martinez@bladecsi.com');
     } catch (e) {
       print("Error al generar el PDF: $e");
     } finally {
@@ -105,11 +107,27 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _clearPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Elimina todo el contenido almacenado
+    setState(() {
+      tareas = []; // Limpia la lista de tareas en memoria
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Formulario limpiado')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_forever, color: Colors.white),
+            onPressed:
+                _clearPreferences, // Llama a la función para limpiar el formulario
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: signOut,
@@ -132,8 +150,10 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
             return const Center(child: Text('No hay tareas disponibles'));
           } else {
             tareas = snapshot.data!;
-            List<Tarea> completadas = tareas.where((t) => t.completada).toList();
-            List<Tarea> noCompletadas = tareas.where((t) => !t.completada).toList();
+            List<Tarea> completadas =
+                tareas.where((t) => t.completada).toList();
+            List<Tarea> noCompletadas =
+                tareas.where((t) => !t.completada).toList();
 
             return ListView(
               padding: const EdgeInsets.all(16.0),
@@ -220,31 +240,45 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   Widget _getFormularioPorTipo(Tarea tarea) {
     switch (tarea.noFormulario) {
       case 1:
-        return FormularioConDetalles(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioConDetalles(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 2:
-        return FormularioEstadoEstetico(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioEstadoEstetico(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 3:
-        return FormularioIncompleto(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioIncompleto(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 4:
-        return FormularioCalibracion(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioCalibracion(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 5:
-        return FormularioFueraDeRango(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioFueraDeRango(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 6:
-        return FormularioLimpieza(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioLimpieza(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 7:
-        return FormularioDesgaste(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioDesgaste(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 8:
-        return FormularioConFugas(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioConFugas(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 9:
-        return FormularioConexiones(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioConexiones(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 10:
-        return FormularioPreventivo(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioPreventivo(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 11:
-        return FormularioComponente(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioComponente(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       case 12:
-        return FormularioCondicion(tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+        return FormularioCondicion(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
       default:
-        return const Center(child: Text('Formulario no disponible', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)));
+        return const Center(
+            child: Text('Formulario no disponible',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)));
     }
   }
 
