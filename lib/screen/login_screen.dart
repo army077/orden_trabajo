@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         final user = await _authService.signInWithGoogle();
                         if (user != null && mounted) {
                           Navigator.pushReplacementNamed(
-                              context, '/my_day_screen');
+                              context, '/prev_day_screen');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

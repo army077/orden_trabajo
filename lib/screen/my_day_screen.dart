@@ -24,6 +24,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyDayScreen extends StatefulWidget {
+  final int selectedId;
+
+  const MyDayScreen({Key? key, required this.selectedId}) : super(key: key);
+
   @override
   _MyDayScreenState createState() => _MyDayScreenState();
 }

@@ -1,25 +1,15 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:todo_app/firebase/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:todo_app/screen/my_day_screen.dart';
-import 'package:todo_app/screen/auth_screen.dart';
+import 'package:todo_app/screen/prev_day_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
-import 'package:todo_app/screen/pruebas_foto_screen.dart';
+import 'package:todo_app/firebase/firebase_options.dart'; // Asegúrate de tener este archivo
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicializa Firebase
+  WidgetsFlutterBinding.ensureInitialized(); // Necesario para operaciones asíncronas
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+    options: DefaultFirebaseOptions.currentPlatform, // Configuración generada automáticamente
   );
-  
-  // Inicializa intl con el locale en español
-  Intl.defaultLocale = 'es';
-  await initializeDateFormatting('es', null); // Inicializa datos de fecha para español
-  
   runApp(const MyApp());
 }
 
@@ -30,12 +20,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/prev_day_screen',
+      onGenerateRoute: (settings) {
+        if (settings.name == '/my_day_screen') {
+          final selectedId = settings.arguments as int;
+          return MaterialPageRoute(
+            builder: (context) => MyDayScreen(selectedId: selectedId),
+          );
+        }
+        return null;
+      },
       routes: {
-        '/prueba_foto': (context) => const PruebasFotoScreen(imageUrl: ''),
-        '/': (context) => const AuthScreen(),
-        '/my_day_screen': (context) => MyDayScreen(),
         '/login_screen': (context) => const LoginScreen(),
+        '/prev_day_screen': (context) => const PrevDayScreen(),
       },
     );
   }
