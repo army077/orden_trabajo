@@ -42,8 +42,9 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    print('Cargando tareas para ID: ${widget.selectedId}');
     super.initState();
-    futureTareas = _loadTareas();
+    futureTareas = _loadTareas(widget.selectedId);
     WidgetsBinding.instance.addObserver(this); // Observamos el ciclo de vida
   }
 
@@ -63,26 +64,32 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     }
   }
 
-  Future<List<Tarea>> _loadTareas() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? tareasJson = prefs.getString('tareas');
+Future<List<Tarea>> _loadTareas(int id) async {
+  print('Llamando a _loadTareas con ID: $id');
+  // Deshabilita cache para pruebas
+  // final prefs = await SharedPreferences.getInstance();
+  // String? tareasJson = prefs.getString('tareas_$id');
 
-    if (tareasJson != null) {
-      List<dynamic> data = json.decode(tareasJson);
-      return data.map((json) => Tarea.fromJson(json)).toList();
-    } else {
-      List<Tarea> apiTareas = await fetchTareas();
-      await _saveTareas(apiTareas);
-      return apiTareas;
-    }
-  }
+  // Si deseas usar el cache, descomenta las siguientes líneas
+  // if (tareasJson != null) {
+  //   print('Tareas cargadas desde cache para ID: $id');
+  //   List<dynamic> data = json.decode(tareasJson);
+  //   return data.map((json) => Tarea.fromJson(json)).toList();
+  // }
+
+  // Siempre cargar desde la API durante las pruebas
+  print('Cargando tareas desde la API para ID: $id');
+  List<Tarea> apiTareas = await fetchTareas(id);
+  await _saveTareas(apiTareas); // Esto guarda en el cache nuevamente
+  return apiTareas;
+}
 
   Future<void> _saveTareas([List<Tarea>? updatedTareas]) async {
     final prefs = await SharedPreferences.getInstance();
     String tareasJson = json.encode(
       (updatedTareas ?? tareas).map((tarea) => tarea.toJson()).toList(),
     );
-    await prefs.setString('tareas', tareasJson);
+    await prefs.setString('tareas_${widget.selectedId}', tareasJson); // Prefijo con el ID
   }
 
   Future<void> signOut() async {
