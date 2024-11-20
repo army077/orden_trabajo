@@ -64,37 +64,55 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     }
   }
 
-Future<List<Tarea>> _loadTareas(int id) async {
-  print('Llamando a _loadTareas con ID: $id');
+  Future<List<Tarea>> _loadTareas(int id) async {
+    print('Llamando a _loadTareas con ID: $id');
 
-  final prefs = await SharedPreferences.getInstance();
-  String? tareasJson = prefs.getString('tareas_$id');
+    final prefs = await SharedPreferences.getInstance();
+    String? tareasJson = prefs.getString('tareas_$id');
 
-  // Si hay datos en cache, los devuelve
-  if (tareasJson != null) {
-    print('Tareas cargadas desde cache para ID: $id');
-    List<dynamic> data = json.decode(tareasJson);
-    return data.map((json) => Tarea.fromJson(json)).toList();
+    // Si hay datos en caché, los devuelve
+    if (tareasJson != null) {
+      print('Tareas cargadas desde cache para ID: $id');
+      List<dynamic> data = json.decode(tareasJson);
+      List<Tarea> tareas = data.map((json) => Tarea.fromJson(json)).toList();
+
+      // Verificar si al menos una tarea está completada
+      bool algunaCompletada = tareas.any((tarea) => tarea.completada);
+      if (!algunaCompletada) {
+        print('Ninguna tarea está completada, reiniciando JSON.');
+        List<Tarea> apiTareas = await fetchTareas(id);
+        await _saveTareas(apiTareas);
+        return apiTareas;
+      }
+      return tareas;
+    }
+
+    //d
+    // Si no hay datos en cache, llama a la API
+    print('Cargando tareas desde la API para ID: $id');
+    try {
+      List<Tarea> apiTareas = await fetchTareas(id);
+      await _saveTareas(apiTareas); // Guarda las tareas en cache
+      return apiTareas;
+    } catch (e) {
+      print('Error al cargar tareas: $e');
+      return []; // Si ocurre un error, devuelve una lista vacía
+    }
   }
-//d
-  // Si no hay datos en cache, llama a la API
-  print('Cargando tareas desde la API para ID: $id');
-  try {
+
+  Future<List<Tarea>> _resetTareas(int id) async {
     List<Tarea> apiTareas = await fetchTareas(id);
-    await _saveTareas(apiTareas); // Guarda las tareas en cache
+    await _saveTareas(apiTareas);
     return apiTareas;
-  } catch (e) {
-    print('Error al cargar tareas: $e');
-    return []; // Si ocurre un error, devuelve una lista vacía
   }
-}
 
   Future<void> _saveTareas([List<Tarea>? updatedTareas]) async {
     final prefs = await SharedPreferences.getInstance();
     String tareasJson = json.encode(
       (updatedTareas ?? tareas).map((tarea) => tarea.toJson()).toList(),
     );
-    await prefs.setString('tareas_${widget.selectedId}', tareasJson); // Prefijo con el ID
+    await prefs.setString(
+        'tareas_${widget.selectedId}', tareasJson); // Prefijo con el ID
   }
 
   Future<void> signOut() async {
@@ -122,8 +140,9 @@ Future<List<Tarea>> _loadTareas(int id) async {
   Future<void> _clearPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // Elimina todo el contenido almacenado
+    print('Resetear el JSON. ---------------------------------');
     setState(() {
-      tareas = []; // Limpia la lista de tareas en memoria
+      futureTareas = _resetTareas(widget.selectedId);
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Formulario limpiado')),
@@ -214,7 +233,20 @@ Future<List<Tarea>> _loadTareas(int id) async {
   List<Widget> _buildTaskList(List<Tarea> tareas) {
     return tareas.map((tarea) {
       return ListTile(
-        leading: Icon(getIconForCategory(tarea.categoria)),
+        leading: SizedBox(
+          width: 46, // Define un ancho para que el contenido no desborde
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                getIconForCategory(tarea.categoria),
+                size: 22,
+              ),
+              const SizedBox(width: 3), // Espacio entre el ícono y el texto
+              Text("${tarea.posicion}."),
+            ],
+          ),
+        ),
         title: Text(tarea.titulo),
         trailing: Checkbox(
           value: tarea.completada,
