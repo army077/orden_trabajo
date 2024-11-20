@@ -89,7 +89,7 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vista de PDF'),
+        title: const Text('Vista de PDF       Compartir ->'),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         actions: [
           IconButton(

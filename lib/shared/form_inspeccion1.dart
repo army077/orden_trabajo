@@ -87,7 +87,7 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
               style:
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(widget.tarea.descripcion ?? 'Sin objetivo definido.',
+          Text(widget.tarea.objetivo ?? 'Sin objetivo definido.',
               style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 16),
           Text('Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
