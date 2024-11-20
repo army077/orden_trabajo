@@ -66,22 +66,27 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
 
 Future<List<Tarea>> _loadTareas(int id) async {
   print('Llamando a _loadTareas con ID: $id');
-  // Deshabilita cache para pruebas
-  // final prefs = await SharedPreferences.getInstance();
-  // String? tareasJson = prefs.getString('tareas_$id');
 
-  // Si deseas usar el cache, descomenta las siguientes líneas
-  // if (tareasJson != null) {
-  //   print('Tareas cargadas desde cache para ID: $id');
-  //   List<dynamic> data = json.decode(tareasJson);
-  //   return data.map((json) => Tarea.fromJson(json)).toList();
-  // }
+  final prefs = await SharedPreferences.getInstance();
+  String? tareasJson = prefs.getString('tareas_$id');
 
-  // Siempre cargar desde la API durante las pruebas
+  // Si hay datos en cache, los devuelve
+  if (tareasJson != null) {
+    print('Tareas cargadas desde cache para ID: $id');
+    List<dynamic> data = json.decode(tareasJson);
+    return data.map((json) => Tarea.fromJson(json)).toList();
+  }
+
+  // Si no hay datos en cache, llama a la API
   print('Cargando tareas desde la API para ID: $id');
-  List<Tarea> apiTareas = await fetchTareas(id);
-  await _saveTareas(apiTareas); // Esto guarda en el cache nuevamente
-  return apiTareas;
+  try {
+    List<Tarea> apiTareas = await fetchTareas(id);
+    await _saveTareas(apiTareas); // Guarda las tareas en cache
+    return apiTareas;
+  } catch (e) {
+    print('Error al cargar tareas: $e');
+    return []; // Si ocurre un error, devuelve una lista vacía
+  }
 }
 
   Future<void> _saveTareas([List<Tarea>? updatedTareas]) async {

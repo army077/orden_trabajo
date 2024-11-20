@@ -21,15 +21,27 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/prev_day_screen',
-      onGenerateRoute: (settings) {
-        if (settings.name == '/my_day_screen') {
-          final selectedId = settings.arguments as int;
-          return MaterialPageRoute(
-            builder: (context) => MyDayScreen(selectedId: selectedId),
-          );
-        }
-        return null;
-      },
+   onGenerateRoute: (settings) {
+  if (settings.name == '/my_day_screen') {
+    // Verifica si hay un argumento válido
+    if (settings.arguments == null || settings.arguments is! int) {
+      // Redirige al usuario a `PrevDayScreen` si el argumento no es válido
+      return MaterialPageRoute(
+        builder: (context) => const PrevDayScreen(),
+      );
+    }
+
+    // Obtén el argumento válido
+    final selectedId = settings.arguments as int;
+    return MaterialPageRoute(
+      builder: (context) => MyDayScreen(selectedId: selectedId),
+    );
+  }
+
+  // Para rutas no manejadas, retorna null
+  return null;
+},
+
       routes: {
         '/login_screen': (context) => const LoginScreen(),
         '/prev_day_screen': (context) => const PrevDayScreen(),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/screen/my_day_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
+import 'package:todo_app/screen/prev_day_screen.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -16,29 +17,28 @@ class AuthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      // Redirige según la lógica de selección de ID
+      return FutureBuilder<int?>(
+        future: _getSelectedId(), // Obtén el ID seleccionado (puede ser null)
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            // Usuario autenticado
-            return FutureBuilder<int>(
-              future: _getSelectedId(),
-              builder: (context, idSnapshot) {
-                if (idSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (idSnapshot.hasError) {
-                  return const Center(child: Text('Error al cargar el ID'));
-                } else {
-                  final selectedId = idSnapshot.data!;
-                  return MyDayScreen(selectedId: selectedId);
-                }
-              },
-            );
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.data == null) {
+            return const PrevDayScreen(); // Si no hay ID, redirige a seleccionar
           } else {
-            // Usuario no autenticado
-            return const LoginScreen();
+            return MyDayScreen(selectedId: snapshot.data!); // Si hay ID, carga `MyDayScreen`
           }
         },
-      ),
+      );
+    } else {
+      return const LoginScreen();
+    }
+  },
+),
+
     );
   }
 }
