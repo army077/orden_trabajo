@@ -111,187 +111,180 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título
-          Text(
-            widget.tarea.titulo,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Título
+        Text(
+          widget.tarea.titulo,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
 
-          // Objetivo
-          Text(
-            'Objetivo:',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
+        // Objetivo
+        Text(
+          'Objetivo:',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          widget.tarea.objetivo ?? 'Sin objetivo definido.',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 16),
 
-          // ¿Fuera de Rango?
-          Text(
-            '¿Fuera de Rango?',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Column(
-            children: [
-              RadioListTile<String>(
-                title: const Text('Sí'),
-                value: 'Sí',
-                groupValue: opcionSeleccionada,
-                onChanged: (valor) {
-                  setState(() {
-                    opcionSeleccionada = valor!;
-                  });
-                },
-              ),
-              RadioListTile<String>(
-                title: const Text('No'),
-                value: 'No',
-                groupValue: opcionSeleccionada,
-                onChanged: (valor) {
-                  setState(() {
-                    opcionSeleccionada = valor!;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Límite Superior
-          _buildTextField(
-            controller: _limiteSuperiorController,
-            label: 'Límite Superior',
-            hint: 'Ingrese el límite superior',
-          ),
-          const SizedBox(height: 16),
-
-          // Límite Inferior
-          _buildTextField(
-            controller: _limiteInferiorController,
-            label: 'Límite Inferior',
-            hint: 'Ingrese el límite inferior',
-          ),
-          const SizedBox(height: 16),
-
-          // Unidad de Medida (Dropdown)
-          DropdownButtonFormField<String>(
-            value: unidadMedidaSeleccionada,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Unidad de Medida',
-              hintText: 'Seleccione una unidad de medida',
+        // ¿Fuera de Rango?
+        Text(
+          '¿Fuera de Rango?',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Column(
+          children: [
+            RadioListTile<String>(
+              title: const Text('Sí'),
+              value: 'Sí',
+              groupValue: opcionSeleccionada,
+              onChanged: (valor) {
+                setState(() {
+                  opcionSeleccionada = valor!;
+                });
+              },
             ),
-            items: const [
-              DropdownMenuItem(value: '', child: Text('')),
-              DropdownMenuItem(value: 'cm', child: Text('cm')),
-              DropdownMenuItem(value: 'mts', child: Text('mts')),
-              DropdownMenuItem(value: 'volts', child: Text('volts')),
-              DropdownMenuItem(value: 'amp', child: Text('amp')),
-              DropdownMenuItem(value: 'litros', child: Text('litros')),
-            ],
-            onChanged: (String? value) {
-              setState(() {
-                unidadMedidaSeleccionada = value;
-              });
-              _validarFormulario();
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Descripción
-          TextField(
-            controller: _descripcionController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Descripción',
-              hintText: 'Escriba una descripción detallada',
+            RadioListTile<String>(
+              title: const Text('No'),
+              value: 'No',
+              groupValue: opcionSeleccionada,
+              onChanged: (valor) {
+                setState(() {
+                  opcionSeleccionada = valor!;
+                });
+              },
             ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
+          ],
+        ),
+        const SizedBox(height: 16),
 
-          // Selección de Imagen
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: const Text('Seleccionar Imagen'),
-          ),
-          const SizedBox(height: 16),
+        // Límite Superior
+        _buildTextField(
+          controller: _limiteSuperiorController,
+          label: 'Límite Superior',
+          hint: 'Ingrese el límite superior',
+        ),
+        const SizedBox(height: 16),
 
-          // Mostrar Imagen Seleccionada
-          if (_imageBytes != null)
-            GestureDetector(
-              onTap: () => _showImageDialog(context),
-              child: Image.memory(
-                _imageBytes!,
-                width: double.infinity,
-                height: 300,
-                fit: BoxFit.cover,
+        // Límite Inferior
+        _buildTextField(
+          controller: _limiteInferiorController,
+          label: 'Límite Inferior',
+          hint: 'Ingrese el límite inferior',
+        ),
+        const SizedBox(height: 16),
+
+        // Unidad de Medida (Dropdown)
+        DropdownButtonFormField<String>(
+          value: unidadMedidaSeleccionada,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Unidad de Medida',
+            hintText: 'Seleccione una unidad de medida',
+          ),
+          items: const [
+            DropdownMenuItem(value: '', child: Text('')),
+            DropdownMenuItem(value: 'cm', child: Text('cm')),
+            DropdownMenuItem(value: 'mts', child: Text('mts')),
+            DropdownMenuItem(value: 'volts', child: Text('volts')),
+            DropdownMenuItem(value: 'amp', child: Text('amp')),
+            DropdownMenuItem(value: 'litros', child: Text('litros')),
+          ],
+          onChanged: (String? value) {
+            setState(() {
+              unidadMedidaSeleccionada = value;
+            });
+            _validarFormulario();
+          },
+        ),
+        const SizedBox(height: 16),
+
+        // Descripción
+        TextField(
+          controller: _descripcionController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Descripción',
+            hintText: 'Escriba una descripción detallada',
+          ),
+          maxLines: 3,
+        ),
+        const SizedBox(height: 16),
+
+        // Selección de Imagen
+        ElevatedButton(
+          onPressed: _pickImage,
+          child: const Text('Seleccionar Imagen'),
+        ),
+        const SizedBox(height: 16),
+
+        // Mostrar Imagen Seleccionada
+        if (_imageBytes != null)
+          GestureDetector(
+            onTap: () => _showImageDialog(context),
+            child: Image.memory(
+              _imageBytes!,
+              width: double.infinity,
+              height: 300,
+              fit: BoxFit.cover,
+            ),
+          ),
+        const SizedBox(height: 16),
+
+        // Botón Completar
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: botonHabilitado ? _completarTarea : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+              child: const Text('Completar',
+                  style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              onPressed: _completarTarea,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+              child: const Text(
+                'Desviación',
+                style: TextStyle(color: Colors.white),
               ),
             ),
-          const SizedBox(height: 16),
+          ],
+        ),
+        const SizedBox(height: 16),
 
-          // Botón Completar
-          Row(
-            children: [
-              Center(
-                child: ElevatedButton(
-                  onPressed: botonHabilitado ? _completarTarea : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                  child: const Text('Completar',
-                      style: TextStyle(color: Colors.white)),
-                ),
-              ),
-              SizedBox(width: 50,),
-               Center(
-                child: ElevatedButton(
-                  onPressed:  _completarTarea ,
-                  child: const Text(
-                    'Desviación',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                ),
-              ),
-            Row(
-            children: [
-              Container(
-                color: const Color.fromARGB(255, 221, 221, 221),
-                height: 80,
-                width: 320,
-              
-                child: Text(
-                  
-                  'Referencias', style: TextStyle(fontSize: 18, ),
-                  ),
-                
-              )
-              
-            ],
-          )
-            ],
+        // Contenedor de Referencias
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          color: const Color.fromARGB(255, 221, 221, 221),
+          width: double.infinity, // Toma todo el ancho disponible
+          child: const Text(
+            'Referencias',
+            style: TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   // Método para construir TextFields reutilizables
   Widget _buildTextField({

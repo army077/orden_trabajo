@@ -69,154 +69,150 @@ class _FormularioIncompletoState extends State<FormularioIncompleto> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título de la tarea.
-          Text(
-            widget.tarea.titulo,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
+ Widget build(BuildContext context) {
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Título de la tarea
+        Text(
+          widget.tarea.titulo,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
 
-          // Objetivo de la tarea.
-          Text(
-            'Objetivo:',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
+        // Objetivo de la tarea
+        const Text(
+          'Objetivo:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          widget.tarea.objetivo ?? 'Sin objetivo definido.',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 16),
 
-          // Tiempo estimado.
-          Text(
-            'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 16),
+        // Tiempo estimado
+        Text(
+          'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 16),
 
-          // Selección binaria: ¿Incompleto?
-          const Text(
-            '¿Incompleto?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        // Selección binaria: ¿Incompleto?
+        const Text(
+          '¿Incompleto?',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Column(
+          children: [
+            RadioListTile<String>(
+              title: const Text('Sí'),
+              value: 'Sí',
+              groupValue: opcionSeleccionada,
+              onChanged: (valor) {
+                setState(() {
+                  opcionSeleccionada = valor;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('No'),
+              value: 'No',
+              groupValue: opcionSeleccionada,
+              onChanged: (valor) {
+                setState(() {
+                  opcionSeleccionada = valor;
+                });
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Botón para seleccionar imagen
+        ElevatedButton(
+          onPressed: _pickImage,
+          child: const Text('Seleccionar Imagen'),
+        ),
+        const SizedBox(height: 16),
+
+        // Mostrar imagen seleccionada
+        if (_imageBytes != null)
+          GestureDetector(
+            onTap: () => _showImageDialog(context),
+            child: Image.memory(
+              _imageBytes!,
+              width: double.infinity,
+              height: 300,
+              fit: BoxFit.cover,
+            ),
           ),
-          const SizedBox(height: 8),
-          Column(
-            children: [
-              RadioListTile<String>(
-                title: const Text('Sí'),
-                value: 'Sí',
-                groupValue: opcionSeleccionada,
-                onChanged: (valor) {
-                  setState(() {
-                    opcionSeleccionada = valor;
-                  });
-                },
+        const SizedBox(height: 16),
+
+        // Campo de descripción
+        TextField(
+          controller: _descripcionController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Descripción de la foto',
+            hintText: 'Escribe una descripción detallada',
+          ),
+          maxLines: 3,
+        ),
+        const SizedBox(height: 16),
+
+        // Botones "Completar" y "Desviación"
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+              onPressed: _completarTarea,
+              child: const Text(
+                'Completar',
+                style: TextStyle(color: Colors.white),
               ),
-              RadioListTile<String>(
-                title: const Text('No'),
-                value: 'No',
-                groupValue: opcionSeleccionada,
-                onChanged: (valor) {
-                  setState(() {
-                    opcionSeleccionada = valor;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Botón para seleccionar imagen.
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: const Text('Seleccionar Imagen'),
-          ),
-          const SizedBox(height: 16),
-
-          // Mostrar imagen seleccionada.
-          if (_imageBytes != null)
-            GestureDetector(
-              onTap: () => _showImageDialog(context),
-              child: Image.memory(
-                _imageBytes!,
-                width: double.infinity,
-                height: 300,
-                fit: BoxFit.cover,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 30, vertical: 15),
               ),
             ),
-          const SizedBox(height: 16),
-
-          // Campo de descripción.
-          TextField(
-            controller: _descripcionController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Descripción de la foto',
-              hintText: 'Escribe una descripción detallada',
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-
-          // Botón "Completar".
-          Row(
-            children: [
-              Center(
-                child: ElevatedButton(
-                  onPressed: _completarTarea,
-                  child: const Text('Completar',
-                      style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                ),
+            ElevatedButton(
+              onPressed: _completarTarea,
+              child: const Text(
+                'Desviación',
+                style: TextStyle(color: Colors.white),
               ),
-              SizedBox(width: 50,),
-               Center(
-                child: ElevatedButton(
-                  onPressed:  _completarTarea ,
-                  child: const Text(
-                    'Desviación',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                ),
-              ),   
-              Row(
-              children: [
-                Container(
-                  color: const Color.fromARGB(255, 221, 221, 221),
-                  height: 80,
-                  width: 320,
-                
-                  child: Text(
-                    
-                    'Referencias', style: TextStyle(fontSize: 18, ),
-                    ),
-                  
-                )
-              
-            ],
-          )
-            ],
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 30, vertical: 15),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Contenedor de "Referencias"
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          color: const Color.fromARGB(255, 221, 221, 221),
+          width: double.infinity,
+          child: const Text(
+            'Referencias',
+            style: TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // Mostrar imagen en un diálogo.
   void _showImageDialog(BuildContext context) {
