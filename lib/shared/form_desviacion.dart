@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../entities/tareas.dart';
 
 class ReportDeviationForm extends StatefulWidget {
-  const ReportDeviationForm({Key? key}) : super(key: key);
+  final Tarea tarea;
+
+  const ReportDeviationForm({Key? key, required this.tarea}) : super(key: key);
 
   @override
   _ReportDeviationFormState createState() => _ReportDeviationFormState();
@@ -12,7 +15,6 @@ class ReportDeviationForm extends StatefulWidget {
 
 class _ReportDeviationFormState extends State<ReportDeviationForm> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _ticketNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _medidasController = TextEditingController();
 
@@ -20,25 +22,21 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
   bool _isSubmitting = false;
 
   String? _selectedDesviacion; // Variable para la desviación seleccionada
+  String? _selectedImpacto; // Variable para el impacto seleccionado
+  String? _selectedDeviation; // Variable para la clasificación seleccionada
 
-  String? _selectedImpacto; // Variable para la desviación seleccionada
-
-  String? _selectedDeviation; // Variable para la desviación seleccionada
-
-  // Lista de desviaciones
+  // Listas de opciones
   final List<String> _desviacionTypes = [
     'Crítica',
     'No Crítica',
   ];
 
-  // Lista de desviaciones
   final List<String> _impactoTypes = [
     'Problema en Garantía',
     'Problema en Servicio Pagado',
     'Requiere Mantenimiento Correctivo',
   ];
 
-  // Lista de desviaciones
   final List<String> _deviationTypes = [
     'Desalineación mecánica',
     'Juego excesivo',
@@ -69,21 +67,18 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
         _isSubmitting = true;
       });
 
-      // Crear el JSON con la información ingresada
-      Map<String, dynamic> formData = {
-        "ticket": _ticketNameController.text,
-        "tipoDesviacion": _selectedDesviacion,
-        "impacto": _selectedImpacto,
-        "clasificacion": _selectedDeviation,
-        "descripcion": _descriptionController.text,
-        "medidas": _medidasController.text,
-        "evidencia": _evidenceImage != null
-            ? base64Encode(_evidenceImage!) // Convertir la imagen a Base64
-            : null,
-      };
+      // Actualizar la tarea con los datos del formulario
+      widget.tarea.tipoDesviacion = _selectedDesviacion;
+      widget.tarea.impacto = _selectedImpacto;
+      widget.tarea.clasificacionDesviacion = _selectedDeviation;
+      widget.tarea.descripcionDesviacion = _descriptionController.text;
+      widget.tarea.medidasCorrectivas = _medidasController.text;
+      widget.tarea.evidenciaBase64 =
+          _evidenceImage != null ? base64Encode(_evidenceImage!) : null;
 
-      print("Formulario enviado:");
-      print(jsonEncode(formData)); // Imprime el JSON en consola
+      // Mostrar el JSON de la tarea
+      print("Tarea actualizada:");
+      print(jsonEncode(widget.tarea.toJson()));
 
       // Simular el envío de datos
       Future.delayed(const Duration(seconds: 2), () {
@@ -94,12 +89,15 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
           content: Text('Reporte enviado con éxito'),
           backgroundColor: Colors.green,
         ));
-        // Limpia los campos después de enviar
-        _ticketNameController.clear();
+
+        // Limpiar los campos después de enviar
+        _selectedDesviacion = null;
+        _selectedImpacto = null;
+        _selectedDeviation = null;
         _descriptionController.clear();
+        _medidasController.clear();
         setState(() {
           _evidenceImage = null;
-          _selectedDeviation = null; // Resetea el Dropdown
         });
       });
     }
@@ -107,8 +105,8 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
 
   @override
   void dispose() {
-    _ticketNameController.dispose();
     _descriptionController.dispose();
+    _medidasController.dispose();
     super.dispose();
   }
 
@@ -124,23 +122,6 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
           key: _formKey,
           child: ListView(
             children: [
-              // Nombre de la máquina
-              TextFormField(
-                controller: _ticketNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Ticket',
-                  border: OutlineInputBorder(),
-                  hintText: 'Ingrese el ticket',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Este campo es obligatorio';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
               // Seleccionar tipo de desviación
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
@@ -168,7 +149,7 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
               ),
               const SizedBox(height: 16),
 
-              // Seleccionar tipo de desviación
+              // Impacto en el mantenimiento
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Impacto en el mantenimiento',
@@ -188,14 +169,14 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Seleccione un tipo de desviación';
+                    return 'Seleccione el impacto';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Seleccionar tipo de desviación
+              // Clasificación de la desviación
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Clasificación',
@@ -215,7 +196,7 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Seleccione un tipo de desviación';
+                    return 'Seleccione una clasificación';
                   }
                   return null;
                 },
@@ -240,12 +221,13 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
               ),
               const SizedBox(height: 16),
 
+              // Medidas correctivas
               TextFormField(
                 controller: _medidasController,
                 decoration: const InputDecoration(
                   labelText: 'Medidas correctivas',
                   border: OutlineInputBorder(),
-                  hintText: 'Describa brevemente las medidas (si aplica)',
+                  hintText: 'Describa las medidas correctivas (si aplica)',
                 ),
                 maxLines: 4,
                 validator: (value) {
