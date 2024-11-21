@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login_screen': (context) => const LoginScreen(),
         '/prev_day_screen': (context) => const PrevDayScreen(),
+        '/desviacion_screen': (context) => const ReportDeviationForm(),
       },
     );
   }

@@ -146,9 +146,11 @@ class _FormularioCondicionState extends State<FormularioCondicion> {
             maxLines: 3,
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: const Text('Seleccionar Imagen'),
+          Center(
+            child: ElevatedButton(
+              onPressed: _pickImage,
+              child: const Text('Seleccionar Imagen'),
+            ),
           ),
           const SizedBox(height: 16),
           if (_imageBytes != null)
@@ -162,20 +164,56 @@ class _FormularioCondicionState extends State<FormularioCondicion> {
               ),
             ),
           const SizedBox(height: 16),
-          Center(
-            child: ElevatedButton(
-              onPressed: botonHabilitado ? _completarTarea : null,
-              child: const Text(
-                'Completar',
-                style: TextStyle(color: Colors.white),
+          Row(
+            children: [
+              Center(
+                child: ElevatedButton(
+                  onPressed: botonHabilitado ? _completarTarea : null,
+                  child: const Text(
+                    'Completar',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                ),
+              ), 
+              SizedBox(width: 50,),
+               Center(
+                child: ElevatedButton(
+                  onPressed:  _completarTarea ,
+                  child: const Text(
+                    'Desviación',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-            ),
+            ],
           ),
+          SizedBox(height: 30,),
+          Row(
+            children: [
+              Container(
+                color: const Color.fromARGB(255, 221, 221, 221),
+                height: 80,
+                width: 320,
+              
+                child: Text(
+                  
+                  'Referencias', style: TextStyle(fontSize: 18, ),
+                  ),
+                
+              )
+              
+            ],
+          )
         ],
       ),
     );

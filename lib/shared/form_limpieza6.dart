@@ -51,89 +51,93 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título de la tarea
-          Text(
-            widget.tarea.titulo,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
+Widget build(BuildContext context) {
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Título de la tarea
+        Text(
+          widget.tarea.titulo,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
 
-          // Objetivo de la tarea
-          const Text(
-            'Objetivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
+        // Objetivo de la tarea
+        const Text(
+          'Objetivo:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          widget.tarea.objetivo ?? 'Sin objetivo definido.',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 16),
 
-          // Campo de texto para el componente o equipo
-          const Text(
-            'Componente o equipo limpiado:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
+        // Campo de texto para el componente o equipo
+        const Text(
+          'Componente o equipo limpiado:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
 
-          TextFormField(
-            controller: _componenteController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Nombre del componente o equipo',
-            ),
-            onChanged: (value) {
-              setState(() {
-                botonHabilitado = value.isNotEmpty && opcionSeleccionada != null;
-              });
-            },
+        TextFormField(
+          controller: _componenteController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Nombre del componente o equipo',
           ),
-          const SizedBox(height: 16),
+          onChanged: (value) {
+            setState(() {
+              botonHabilitado = value.isNotEmpty && opcionSeleccionada != null;
+            });
+          },
+        ),
+        const SizedBox(height: 16),
 
-          // Selección del estatus de limpieza
-          const Text(
-            'Estatus de la limpieza:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        // Selección del estatus de limpieza
+        const Text(
+          'Estatus de la limpieza:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+
+        DropdownButtonFormField<String>(
+          isExpanded: true,
+          value: opcionSeleccionada,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Selecciona un estatus',
           ),
-          const SizedBox(height: 8),
+          items: opcionesEstatus.map((opcion) {
+            return DropdownMenuItem<String>(
+              value: opcion["valor"].toString(),
+              child: Text(opcion["texto"]),
+            );
+          }).toList(),
+          onChanged: (valor) {
+            setState(() {
+              opcionSeleccionada = valor;
+              botonHabilitado =
+                  _componenteController.text.isNotEmpty && valor != null;
+            });
+          },
+          validator: (valor) {
+            if (valor == null || valor.isEmpty) {
+              return 'Por favor selecciona un estatus';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
 
-          DropdownButtonFormField<String>(
-            isExpanded: true,
-            value: opcionSeleccionada,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Selecciona un estatus',
-            ),
-            items: opcionesEstatus.map((opcion) {
-              return DropdownMenuItem<String>(
-                value: opcion["valor"].toString(),
-                child: Text(opcion["texto"]),
-              );
-            }).toList(),
-            onChanged: (valor) {
-              setState(() {
-                opcionSeleccionada = valor;
-                botonHabilitado = _componenteController.text.isNotEmpty && valor != null;
-              });
-            },
-            validator: (valor) {
-              if (valor == null || valor.isEmpty) {
-                return 'Por favor selecciona un estatus';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Botón "Completar"
-          Center(
-            child: ElevatedButton(
+        // Botones "Completar" y "Desviación"
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
               onPressed: botonHabilitado ? _completarTarea : null,
               child: const Text(
                 'Completar',
@@ -141,14 +145,41 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 30, vertical: 15),
               ),
             ),
+            ElevatedButton(
+              onPressed: _completarTarea,
+              child: const Text(
+                'Desviación',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 30, vertical: 15),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Contenedor de "Referencias"
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          color: const Color.fromARGB(255, 221, 221, 221),
+          width: double.infinity,
+          child: const Text(
+            'Referencias',
+            style: TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   void dispose() {
