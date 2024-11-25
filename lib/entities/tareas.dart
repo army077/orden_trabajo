@@ -29,6 +29,7 @@ class Tarea {
   final int noFormulario;
   bool completada;
   final DateTime fechaCreacion;
+  final String? maquina;
 
   // Nuevos campos para guardar datos de los formularios
   String? componente; // Nombre del componente o equipo limpiado
@@ -52,6 +53,7 @@ class Tarea {
     required this.id,
     required this.titulo,
     required this.categoria,
+    required this.maquina,
     this.objetivo,
     this.tiempoEstimado = 0,
     required this.posicion,
@@ -90,6 +92,7 @@ factory Tarea.fromJson(Map<String, dynamic> json) {
     fechaCreacion: json['fecha_creacion'] != null
         ? DateTime.parse(json['fecha_creacion'])
         : DateTime.now(), // Usar la fecha actual si es null
+    maquina: json['maquina'] ,
     componente: json['componente'],
     estatus: json['estatus'],
     opcionDanio: json['opcion_danio'],
@@ -122,6 +125,7 @@ factory Tarea.fromJson(Map<String, dynamic> json) {
       'clasificacion': categoria,
       'objetivo': objetivo,
       'tiempo_estimado': tiempoEstimado,
+      'maquina': maquina,
       'posicion': posicion,
       'no_formulario': noFormulario,
       'completada': completada,

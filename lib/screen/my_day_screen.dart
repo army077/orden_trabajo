@@ -186,18 +186,39 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
             List<Tarea> noCompletadas =
                 tareas.where((t) => !t.completada).toList();
 
-            return ListView(
-              padding: const EdgeInsets.all(16.0),
+          
+
+           return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (completadas.isNotEmpty) ...[
-                  _buildSectionTitle('Completadas', Icons.check_circle),
-                  ..._buildTaskList(completadas),
-                  const SizedBox(height: 20),
-                ],
-                _buildSectionTitle('Pendientes', Icons.pending_actions),
-                ..._buildTaskList(noCompletadas),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Máquina: ${tareas.isNotEmpty ? tareas.first.maquina : 'Desconocida'}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(16.0),
+                    children: [
+                      if (completadas.isNotEmpty) ...[
+                        _buildSectionTitle('Completadas', Icons.check_circle),
+                        ..._buildTaskList(completadas),
+                        const SizedBox(height: 20),
+                      ],
+                      _buildSectionTitle('Pendientes', Icons.pending_actions),
+                      ..._buildTaskList(noCompletadas),
+                    ],
+                  ),
+                ),
               ],
             );
+
           }
         },
       ),

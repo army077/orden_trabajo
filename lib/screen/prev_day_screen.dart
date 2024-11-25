@@ -40,6 +40,14 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                   value: 11,
                   child: Text('ID 11'),
                 ),
+                 DropdownMenuItem(
+                  value: 12,
+                  child: Text('ID 12'),
+                ),
+                 DropdownMenuItem(
+                  value: 13,
+                  child: Text('ID 13'),
+                ),
               ],
               onChanged: (int? value) {
                 if (value != null) {
