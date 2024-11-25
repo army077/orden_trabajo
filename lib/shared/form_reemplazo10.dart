@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/shared/form_desviacion.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioPreventivo extends StatefulWidget {
@@ -38,126 +39,134 @@ class _FormularioPreventivoState extends State<FormularioPreventivo> {
       Navigator.pop(context); // Cierra el modal
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor selecciona una opción')),
+        const SnackBar(content: Text('Por favor selecciona una opción')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título de la tarea
-          Text(
-            widget.tarea.titulo,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-
-          // Objetivo de la tarea
-          Text(
-            'Objetivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 4),
-          Text(
-            widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 16),
-
-          // Selección del estado preventivo
-          Text(
-            'Estado Preventivo:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-
-          // Dropdown con opciones preventivas
-          DropdownButtonFormField<String>(
-            isExpanded: true,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Selecciona el estado preventivo',
-            ),
-            items: opcionesPreventivo.map((opcion) {
-              return DropdownMenuItem<String>(
-                value: opcion["valor"].toString(),
-                child: Text(opcion["texto"]),
-              );
-            }).toList(),
-            onChanged: (valor) {
-              setState(() {
-                opcionSeleccionada = valor;
-                botonHabilitado =
-                    true; // Habilita el botón al seleccionar una opción
-              });
-            },
-            validator: (valor) {
-              if (valor == null || valor.isEmpty) {
-                return 'Por favor selecciona una opción';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 16),
-
-          // Botón "Completar"
-          Row(
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // Ajusta el diseño al aparecer el teclado
+      appBar: AppBar(title: const Text('Formulario Preventivo')),
+      body: GestureDetector(
+        onTap: () {
+          // Oculta el teclado al tocar fuera de los campos interactivos
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: ElevatedButton(
-                  onPressed: botonHabilitado ? _completarTarea : null,
-                  child: Text(
-                    'Completar',
-                    style: TextStyle(
-                      color: Colors.white,
+              // Título de la tarea
+              Text(
+                widget.tarea.titulo,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+
+              // Objetivo de la tarea
+              const Text(
+                'Objetivo:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                widget.tarea.objetivo ?? 'Sin objetivo definido.',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+
+              // Selección del estado preventivo
+              const Text(
+                'Estado Preventivo:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+
+              // Dropdown con opciones preventivas
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Selecciona el estado preventivo',
+                ),
+                items: opcionesPreventivo.map((opcion) {
+                  return DropdownMenuItem<String>(
+                    value: opcion["valor"].toString(),
+                    child: Text(opcion["texto"]),
+                  );
+                }).toList(),
+                onChanged: (valor) {
+                  setState(() {
+                    opcionSeleccionada = valor;
+                    botonHabilitado = true; // Habilita el botón al seleccionar una opción
+                  });
+                },
+                validator: (valor) {
+                  if (valor == null || valor.isEmpty) {
+                    return 'Por favor selecciona una opción';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Botones "Completar" y "Desviación"
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: botonHabilitado ? _completarTarea : null,
+                    child: const Text(
+                      'Completar',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReportDeviationForm(tarea: widget.tarea),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    child: const Text(
+                      'Desviación',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
+                ],
               ),
-                SizedBox(width: 50,),
-               Center(
-                child: ElevatedButton(
-                  onPressed:  _completarTarea ,
-                  child: const Text(
-                    'Desviación',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                ),
-              ),
-                 Row(
-            children: [
-              Container(
-                color: const Color.fromARGB(255, 221, 221, 221),
-                height: 80,
-                width: 320,
-              
-                child: Text(
-                  
-                  'Referencias', style: TextStyle(fontSize: 18, ),
-                  ),
-                
-              )
-              
-            ],
-          )
+              const SizedBox(height: 20),
 
-              
+              // Contenedor de "Referencias"
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 221, 221, 221),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: const Text(
+                  'Referencias',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

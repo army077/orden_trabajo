@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:todo_app/shared/form_desviacion.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioConFugas extends StatefulWidget {
@@ -84,144 +85,161 @@ class _FormularioConFugasState extends State<FormularioConFugas> {
     super.dispose();
   }
 
-  @override
- Widget build(BuildContext context) {
-  return SingleChildScrollView(
-    padding: const EdgeInsets.all(16.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Título de la tarea
-        Text(
-          widget.tarea.titulo,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-
-        // Objetivo de la tarea
-        const Text(
-          'Objetivo:',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          widget.tarea.objetivo ?? 'Sin objetivo definido.',
-          style: const TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 16),
-
-        // Estado de Fugas
-        const Text(
-          'Estado de Fugas:',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-
-        // Dropdown con opciones de fugas
-        DropdownButtonFormField<String>(
-          value: opcionSeleccionada,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Selecciona el estado de fugas',
-          ),
-          items: opcionesFugas.map((opcion) {
-            return DropdownMenuItem<String>(
-              value: opcion["valor"].toString(),
-              child: Text(opcion["texto"]),
-            );
-          }).toList(),
-          onChanged: (valor) {
-            setState(() {
-              opcionSeleccionada = valor;
-              botonHabilitado = valor != null;
-            });
-          },
-          validator: (valor) =>
-              valor == null ? 'Por favor selecciona una opción' : null,
-        ),
-        const SizedBox(height: 16),
-
-        // Descripción
-        TextField(
-          controller: _descripcionController,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Descripción',
-            hintText: 'Escribe una descripción detallada',
-          ),
-          maxLines: 3,
-        ),
-        const SizedBox(height: 16),
-
-        // Selección de Imagen
-        ElevatedButton(
-          onPressed: _pickImage,
-          child: const Text('Seleccionar Imagen'),
-        ),
-        const SizedBox(height: 16),
-
-        // Mostrar Imagen Seleccionada
-        if (_imageBytes != null)
-          GestureDetector(
-            onTap: () => _showImageDialog(context),
-            child: Image.memory(
-              _imageBytes!,
-              width: double.infinity,
-              height: 300,
-              fit: BoxFit.cover,
-            ),
-          ),
-        const SizedBox(height: 16),
-
-        // Botones "Completar" y "Desviación"
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: true, // Ajusta el diseño al aparecer el teclado
+    appBar: AppBar(title: const Text('Formulario con Fugas')),
+    body: GestureDetector(
+      onTap: () {
+        // Oculta el teclado al tocar fuera de los campos interactivos
+        FocusScope.of(context).unfocus();
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ElevatedButton(
-              onPressed: botonHabilitado ? _completarTarea : null,
-              child: const Text(
-                'Completar',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 30, vertical: 15),
-              ),
+            // Título de la tarea
+            Text(
+              widget.tarea.titulo,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            ElevatedButton(
-              onPressed: _completarTarea,
-              child: const Text(
-                'Desviación',
-                style: TextStyle(color: Colors.white),
+            const SizedBox(height: 8),
+
+            // Objetivo de la tarea
+            const Text(
+              'Objetivo:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.tarea.objetivo ?? 'Sin objetivo definido.',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+
+            // Estado de Fugas
+            const Text(
+              'Estado de Fugas:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+
+            // Dropdown con opciones de fugas
+            DropdownButtonFormField<String>(
+              value: opcionSeleccionada,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Selecciona el estado de fugas',
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 30, vertical: 15),
+              items: opcionesFugas.map((opcion) {
+                return DropdownMenuItem<String>(
+                  value: opcion["valor"].toString(),
+                  child: Text(opcion["texto"]),
+                );
+              }).toList(),
+              onChanged: (valor) {
+                setState(() {
+                  opcionSeleccionada = valor;
+                  botonHabilitado = valor != null;
+                });
+              },
+              validator: (valor) =>
+                  valor == null ? 'Por favor selecciona una opción' : null,
+            ),
+            const SizedBox(height: 16),
+
+            // Descripción
+            TextField(
+              controller: _descripcionController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Descripción',
+                hintText: 'Escribe una descripción detallada',
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+
+            // Selección de Imagen
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: const Text('Seleccionar Imagen'),
+            ),
+            const SizedBox(height: 16),
+
+            // Mostrar Imagen Seleccionada
+            if (_imageBytes != null)
+              GestureDetector(
+                onTap: () => _showImageDialog(context),
+                child: Image.memory(
+                  _imageBytes!,
+                  width: double.infinity,
+                  height: 300,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(height: 16),
+
+            // Botones "Completar" y "Desviación"
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: botonHabilitado ? _completarTarea : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text(
+                    'Completar',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ReportDeviationForm(tarea: widget.tarea),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text(
+                    'Desviación',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Contenedor de "Referencias"
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              color: const Color.fromARGB(255, 221, 221, 221),
+              width: double.infinity,
+              child: const Text(
+                'Referencias',
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-
-        // Contenedor de "Referencias"
-        Container(
-          padding: const EdgeInsets.all(8.0),
-          color: const Color.fromARGB(255, 221, 221, 221),
-          width: double.infinity,
-          child: const Text(
-            'Referencias',
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
+      ),
     ),
   );
 }
-
 
   // Diálogo para mostrar la imagen seleccionada
   void _showImageDialog(BuildContext context) {
@@ -238,3 +256,8 @@ class _FormularioConFugasState extends State<FormularioConFugas> {
     );
   }
 }
+
+
+
+  // Diálogo para mostrar la imagen seleccionada
+

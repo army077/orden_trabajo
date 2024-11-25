@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/prev_day_screen',
+      initialRoute: '/login_screen',
       onGenerateRoute: (settings) {
         // Manejo de rutas dinámicas
         if (settings.name == '/my_day_screen') {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_app/shared/form_desviacion.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioComponente extends StatefulWidget {
@@ -156,18 +157,26 @@ class _FormularioComponenteState extends State<FormularioComponente> {
                     horizontal: 30, vertical: 15),
               ),
             ),
-            ElevatedButton(
-              onPressed: _completarTarea,
-              child: const Text(
-                'Desviación',
-                style: TextStyle(color: Colors.white),
+               ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ReportDeviationForm(tarea: widget.tarea),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                child: const Text(
+                  'Desviación',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 30, vertical: 15),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 16),

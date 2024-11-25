@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:todo_app/shared/form_desviacion.dart';
 import '../entities/tareas.dart'; // Importa la entidad Tarea
 
 class FormularioCondicion extends StatefulWidget {
@@ -78,146 +79,167 @@ class _FormularioCondicionState extends State<FormularioCondicion> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.tarea.titulo,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Objetivo:',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.tarea.objetivo ?? 'Sin objetivo definido.',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Condición Actual:',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: opcionSeleccionada,
-            isExpanded: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Selecciona una opción',
+Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: true, // Ajusta el diseño al aparecer el teclado
+    appBar: AppBar(title: const Text('Formulario Condición')),
+    body: GestureDetector(
+      onTap: () {
+        // Oculta el teclado al tocar fuera de los campos interactivos
+        FocusScope.of(context).unfocus();
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Título de la tarea
+            Text(
+              widget.tarea.titulo,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            items: opcionesCondicion.map((opcion) {
-              return DropdownMenuItem<String>(
-                value: opcion["valor"].toString(),
-                child: Text(opcion["texto"]),
-              );
-            }).toList(),
-            onChanged: (valor) {
-              setState(() {
-                opcionSeleccionada = valor;
-                botonHabilitado = true;
-              });
-            },
-            validator: (valor) {
-              if (valor == null || valor.isEmpty) {
-                return 'Por favor selecciona una opción';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _descripcionController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Descripción',
-              hintText: 'Escribe una descripción detallada',
+            const SizedBox(height: 8),
+
+            // Objetivo de la tarea
+            const Text(
+              'Objetivo:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: ElevatedButton(
+            const SizedBox(height: 4),
+            Text(
+              widget.tarea.objetivo ?? 'Sin objetivo definido.',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+
+            // Tiempo estimado
+            Text(
+              'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 16),
+
+            // Condición actual
+            const Text(
+              'Condición Actual:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+
+            // Dropdown de opciones
+            DropdownButtonFormField<String>(
+              value: opcionSeleccionada,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Selecciona una opción',
+              ),
+              items: opcionesCondicion.map((opcion) {
+                return DropdownMenuItem<String>(
+                  value: opcion["valor"].toString(),
+                  child: Text(opcion["texto"]),
+                );
+              }).toList(),
+              onChanged: (valor) {
+                setState(() {
+                  opcionSeleccionada = valor;
+                  botonHabilitado = true;
+                });
+              },
+              validator: (valor) =>
+                  valor == null ? 'Por favor selecciona una opción' : null,
+            ),
+            const SizedBox(height: 16),
+
+            // Descripción
+            TextField(
+              controller: _descripcionController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Descripción',
+                hintText: 'Escribe una descripción detallada',
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+
+            // Botón de selección de imagen
+            ElevatedButton(
               onPressed: _pickImage,
               child: const Text('Seleccionar Imagen'),
             ),
-          ),
-          const SizedBox(height: 16),
-          if (_imageBytes != null)
-            GestureDetector(
-              onTap: () => _showImageDialog(context),
-              child: Image.memory(
-                _imageBytes!,
-                width: double.infinity,
-                height: 300,
-                fit: BoxFit.cover,
+            const SizedBox(height: 16),
+
+            // Mostrar imagen seleccionada
+            if (_imageBytes != null)
+              GestureDetector(
+                onTap: () => _showImageDialog(context),
+                child: Image.memory(
+                  _imageBytes!,
+                  width: double.infinity,
+                  height: 300,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Center(
-                child: ElevatedButton(
+            const SizedBox(height: 16),
+
+            // Botones "Completar" y "Desviación"
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
                   onPressed: botonHabilitado ? _completarTarea : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
                   child: const Text(
                     'Completar',
                     style: TextStyle(color: Colors.white),
                   ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ReportDeviationForm(tarea: widget.tarea),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
                   ),
-                ),
-              ), 
-              SizedBox(width: 50,),
-               Center(
-                child: ElevatedButton(
-                  onPressed:  _completarTarea ,
                   child: const Text(
                     'Desviación',
                     style: TextStyle(color: Colors.white),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Contenedor de "Referencias"
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              color: const Color.fromARGB(255, 221, 221, 221),
+              width: double.infinity,
+              child: const Text(
+                'Referencias',
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
               ),
-            ],
-          ),
-          SizedBox(height: 30,),
-          Row(
-            children: [
-              Container(
-                color: const Color.fromARGB(255, 221, 221, 221),
-                height: 80,
-                width: 320,
-              
-                child: Text(
-                  
-                  'Referencias', style: TextStyle(fontSize: 18, ),
-                  ),
-                
-              )
-              
-            ],
-          )
-        ],
+            ),
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showImageDialog(BuildContext context) {
     showDialog(
