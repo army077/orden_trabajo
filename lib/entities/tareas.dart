@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 
 Future<List<Tarea>> fetchTareas(int id) async {
   print('fetchTareas llamada con ID: $id');
-  final url = Uri.parse('https://teknia.app/api3/obtener_planes_trabajo_por_orden/$id');
+  final url =
+      Uri.parse('https://teknia.app/api3/obtener_planes_trabajo_por_orden/$id');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
@@ -17,7 +18,6 @@ Future<List<Tarea>> fetchTareas(int id) async {
     throw Exception('Error al cargar las tareas');
   }
 }
-
 
 class Tarea {
   final int id;
@@ -47,7 +47,17 @@ class Tarea {
   String? estadoDesgaste;
   String? estadoFugas; // Estado de las fugas
   String? descripcion;
-  String? base64; // Nueva propiedad para la imagen en Base64.
+  String? base64;
+  
+   // Nueva propiedad para la imagen en Base64.
+
+  // Nuevos campos para desviaciones
+  String? tipoDesviacion; // Tipo de desviación (Crítica, No Crítica)
+  String? impacto; // Impacto en el mantenimiento
+  String? clasificacionDesviacion; // Clasificación de la desviación
+  String? descripcionDesviacion; // Descripción de la desviación
+  String? medidasCorrectivas; // Medidas correctivas
+  String? evidenciaBase64; // Imagen en Base64 como evidencia
 
   Tarea({
     required this.id,
@@ -76,46 +86,58 @@ class Tarea {
     this.estadoFugas,
     this.descripcion,
     this.base64, // Inicializa en null por defecto.
+    this.tipoDesviacion,
+    this.impacto,
+    this.clasificacionDesviacion,
+    this.descripcionDesviacion,
+    this.medidasCorrectivas,
+    this.evidenciaBase64,
   });
 
   // Deserialización de JSON a Tarea.
-factory Tarea.fromJson(Map<String, dynamic> json) {
-  return Tarea(
-    id: json['id'] ?? 0, // Asignar 0 si el valor es null
-    titulo: json['titulo'] ?? 'Sin título', // Asignar texto por defecto si es null
-    categoria: json['clasificacion'] ?? 'Sin categoría',
-    objetivo: json['objetivo'],
-    tiempoEstimado: json['tiempo_estimado'] ?? 0, // Asignar 0 si es null
-    posicion: json['posicion'] ?? 0, // Asignar 0 si es null
-    noFormulario: json['no_formulario'] ?? 0, // Asignar 0 si es null
-    completada: json['completada'] ?? false, // Asignar false si es null
-    fechaCreacion: json['fecha_creacion'] != null
-        ? DateTime.parse(json['fecha_creacion'])
-        : DateTime.now(), // Usar la fecha actual si es null
-    maquina: json['maquina'] ,
-    componente: json['componente'],
-    estatus: json['estatus'],
-    opcionDanio: json['opcion_danio'],
-    estadoEstetico: json['estado_estetico'],
-    fueraDeRango: json['fuera_de_rango'],
-    limiteSuperior: (json['limite_superior'] != null)
-        ? double.parse(json['limite_superior'].toString())
-        : null,
-    limiteInferior: (json['limite_inferior'] != null)
-        ? double.parse(json['limite_inferior'].toString())
-        : null,
-    unidadMedida: json['unidad_medida'],
-    estadoConexion: json['estado_conexion'],
-    incompleto: json['incompleto'],
-    estadoCalibracion: json['estado_calibracion'],
-    estadoDesgaste: json['estado_desgaste'],
-    estadoFugas: json['estado_fugas'],
-    descripcion: json['descripcion'],
-    base64: json['base64'],
-    estadoCondicion: json['estadoCondicion'],
-  );
-}
-
+  factory Tarea.fromJson(Map<String, dynamic> json) {
+    return Tarea(
+      id: json['id'] ?? 0, // Asignar 0 si el valor es null
+      titulo: json['titulo'] ??
+          'Sin título', // Asignar texto por defecto si es null
+      categoria: json['clasificacion'] ?? 'Sin categoría',
+      objetivo: json['objetivo'],
+      tiempoEstimado: json['tiempo_estimado'] ?? 0, // Asignar 0 si es null
+      posicion: json['posicion'] ?? 0, // Asignar 0 si es null
+      noFormulario: json['no_formulario'] ?? 0, // Asignar 0 si es null
+      completada: json['completada'] ?? false, // Asignar false si es null
+      fechaCreacion: json['fecha_creacion'] != null
+          ? DateTime.parse(json['fecha_creacion'])
+          : DateTime.now(), // Usar la fecha actual si es null
+      componente: json['componente'],
+      estatus: json['estatus'],
+      opcionDanio: json['opcion_danio'],
+      estadoEstetico: json['estado_estetico'],
+      fueraDeRango: json['fuera_de_rango'],
+      limiteSuperior: (json['limite_superior'] != null)
+          ? double.parse(json['limite_superior'].toString())
+          : null,
+      limiteInferior: (json['limite_inferior'] != null)
+          ? double.parse(json['limite_inferior'].toString())
+          : null,
+      unidadMedida: json['unidad_medida'],
+      maquina: json['maquina'] ,
+      estadoConexion: json['estado_conexion'],
+      incompleto: json['incompleto'],
+      estadoCalibracion: json['estado_calibracion'],
+      estadoDesgaste: json['estado_desgaste'],
+      estadoFugas: json['estado_fugas'],
+      descripcion: json['descripcion'],
+      base64: json['base64'],
+      estadoCondicion: json['estadoCondicion'],
+      tipoDesviacion: json['tipo_desviacion'],
+      impacto: json['impacto'],
+      clasificacionDesviacion: json['clasificacion_desviacion'],
+      descripcionDesviacion: json['descripcion_desviacion'],
+      medidasCorrectivas: json['medidas_correctivas'],
+      evidenciaBase64: json['evidencia_base64'],
+    );
+  }
 
   // Serialización de Tarea a JSON.
   Map<String, dynamic> toJson() {
@@ -145,6 +167,12 @@ factory Tarea.fromJson(Map<String, dynamic> json) {
       'descripcion': descripcion,
       'base64': base64,
       'estadoCondicion': estadoCondicion,
+      'tipo_desviacion': tipoDesviacion,
+      'impacto': impacto,
+      'clasificacion_desviacion': clasificacionDesviacion,
+      'descripcion_desviacion': descripcionDesviacion,
+      'medidas_correctivas': medidasCorrectivas,
+      'evidencia_base64': evidenciaBase64,
     };
   }
 }
