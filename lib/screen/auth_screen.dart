@@ -8,37 +8,46 @@ import 'package:todo_app/screen/prev_day_screen.dart';
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
 
-  Future<int> _getSelectedId() async {
+  Future<int?> _getSelectedId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('selectedId') ?? 10; // ID predeterminado si no está configurado
+    return prefs.getInt('selectedId'); // Devuelve null si no está configurado
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<User?>(
-  stream: FirebaseAuth.instance.authStateChanges(),
-  builder: (context, snapshot) {
-    if (snapshot.hasData) {
-      // Redirige según la lógica de selección de ID
-      return FutureBuilder<int?>(
-        future: _getSelectedId(), // Obtén el ID seleccionado (puede ser null)
+        stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.data == null) {
-            return const PrevDayScreen(); // Si no hay ID, redirige a seleccionar
+          }
+
+          if (snapshot.hasData && snapshot.data != null) {
+            final userEmail = snapshot.data!.email ?? ''; // Obtén el email del usuario logueado
+
+            return FutureBuilder<int?>(
+              future: _getSelectedId(), // Obtén el ID seleccionado
+              builder: (context, idSnapshot) {
+                if (idSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Si no hay ID seleccionado, redirige a `PrevDayScreen`
+                if (idSnapshot.data == null) {
+                  return PrevDayScreen(tecnicoEmail: userEmail);
+                }
+
+                // Si hay un ID seleccionado, redirige a `MyDayScreen`
+                return MyDayScreen(selectedId: idSnapshot.data!);
+              },
+            );
           } else {
-            return MyDayScreen(selectedId: snapshot.data!); // Si hay ID, carga `MyDayScreen`
+            // Si no hay un usuario logueado, redirige a `LoginScreen`
+            return const LoginScreen();
           }
         },
-      );
-    } else {
-      return const LoginScreen();
-    }
-  },
-),
-
+      ),
     );
   }
 }

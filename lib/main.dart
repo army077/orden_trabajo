@@ -6,13 +6,12 @@ import 'package:todo_app/screen/login_screen.dart';
 import 'package:todo_app/firebase/firebase_options.dart';
 import 'package:todo_app/shared/form_desviacion.dart'; // Asegúrate de tener este archivo
 import 'package:todo_app/entities/tareas.dart'; // Asegúrate de tener este archivo
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // Necesario para operaciones asíncronas
+  WidgetsFlutterBinding.ensureInitialized(); // Necesario para operaciones asíncronas
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions
-        .currentPlatform, // Configuración generada automáticamente
+    options: DefaultFirebaseOptions.currentPlatform, // Configuración generada automáticamente
   );
   runApp(const MyApp());
 }
@@ -26,13 +25,15 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/login_screen',
       onGenerateRoute: (settings) {
-        // Manejo de rutas dinámicas
+        final currentUser = FirebaseAuth.instance.currentUser;
+
         if (settings.name == '/my_day_screen') {
           // Verifica si hay un argumento válido
           if (settings.arguments == null || settings.arguments is! int) {
-            // Redirige al usuario a `PrevDayScreen` si el argumento no es válido
             return MaterialPageRoute(
-              builder: (context) => const PrevDayScreen(),
+              builder: (context) => PrevDayScreen(
+                tecnicoEmail: currentUser?.email ?? 'sin-email',
+              ),
             );
           }
 
@@ -46,9 +47,10 @@ class MyApp extends StatelessWidget {
         if (settings.name == '/desviacion_screen') {
           // Verifica si hay un argumento válido para la tarea
           if (settings.arguments == null || settings.arguments is! Tarea) {
-            // Redirige al usuario a `PrevDayScreen` si el argumento no es válido
             return MaterialPageRoute(
-              builder: (context) => const PrevDayScreen(),
+              builder: (context) => PrevDayScreen(
+                tecnicoEmail: currentUser?.email ?? 'sin-email',
+              ),
             );
           }
 
@@ -64,7 +66,12 @@ class MyApp extends StatelessWidget {
       },
       routes: {
         '/login_screen': (context) => const LoginScreen(),
-        '/prev_day_screen': (context) => const PrevDayScreen(),
+        '/prev_day_screen': (context) {
+          final currentUser = FirebaseAuth.instance.currentUser;
+          return PrevDayScreen(
+            tecnicoEmail: currentUser?.email ?? 'sin-email',
+          );
+        },
       },
     );
   }
