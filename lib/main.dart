@@ -5,6 +5,7 @@ import 'package:todo_app/screen/prev_day_screen.dart';
 import 'package:todo_app/screen/login_screen.dart';
 import 'package:todo_app/firebase/firebase_options.dart';
 import 'package:todo_app/shared/form_desviacion.dart'; // Asegúrate de tener este archivo
+import 'package:todo_app/entities/tareas.dart'; // Asegúrate de tener este archivo
 
 void main() async {
   WidgetsFlutterBinding
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/prev_day_screen',
       onGenerateRoute: (settings) {
+        // Manejo de rutas dinámicas
         if (settings.name == '/my_day_screen') {
           // Verifica si hay un argumento válido
           if (settings.arguments == null || settings.arguments is! int) {
@@ -41,13 +43,28 @@ class MyApp extends StatelessWidget {
           );
         }
 
-        // Para rutas no manejadas, retorna null
+        if (settings.name == '/desviacion_screen') {
+          // Verifica si hay un argumento válido para la tarea
+          if (settings.arguments == null || settings.arguments is! Tarea) {
+            // Redirige al usuario a `PrevDayScreen` si el argumento no es válido
+            return MaterialPageRoute(
+              builder: (context) => const PrevDayScreen(),
+            );
+          }
+
+          // Obtén la tarea válida
+          final tarea = settings.arguments as Tarea;
+          return MaterialPageRoute(
+            builder: (context) => ReportDeviationForm(tarea: tarea),
+          );
+        }
+
+        // Retorna null para rutas no manejadas
         return null;
       },
       routes: {
         '/login_screen': (context) => const LoginScreen(),
         '/prev_day_screen': (context) => const PrevDayScreen(),
-        '/desviacion_screen': (context) => const ReportDeviationForm(),
       },
     );
   }

@@ -74,152 +74,153 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
   }
 
   @override
- Widget build(BuildContext context) {
-  return SingleChildScrollView(
-    padding: const EdgeInsets.all(16.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Título de la tarea
-        Text(
-          widget.tarea.titulo,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-
-        // Objetivo de la tarea
-        const Text(
-          'Objetivo:',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          widget.tarea.objetivo ?? 'Sin objetivo definido.',
-          style: const TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 16),
-
-        // Tiempo estimado
-        Text(
-          'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
-          style: const TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 16),
-
-        // ¿Con Daño?
-        const Text(
-          '¿Con Daño?',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-
-        // Dropdown con opciones
-        DropdownButtonFormField<String>(
-          isExpanded: true,
-          value: opcionSeleccionada,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Selecciona una opción',
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Título de la tarea
+          Text(
+            widget.tarea.titulo,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          items: opcionesDanio.map((opcion) {
-            return DropdownMenuItem<String>(
-              value: opcion["valor"].toString(),
-              child: Text(opcion["texto"]),
-            );
-          }).toList(),
-          onChanged: (valor) {
-            setState(() {
-              opcionSeleccionada = valor;
-              botonHabilitado = true;
-            });
-          },
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
-        // Botón para seleccionar imagen
-        ElevatedButton(
-          onPressed: _pickImage,
-          child: const Text('Seleccionar Imagen'),
-        ),
-        const SizedBox(height: 16),
+          // Objetivo de la tarea
+          const Text(
+            'Objetivo:',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.tarea.objetivo ?? 'Sin objetivo definido.',
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 16),
 
-        // Mostrar imagen seleccionada
-        if (_imageBytes != null)
-          GestureDetector(
-            onTap: () => _showImageDialog(context),
-            child: Image.memory(
-              _imageBytes!,
-              width: double.infinity,
-              height: 300,
-              fit: BoxFit.cover,
+          // Tiempo estimado
+          Text(
+            'Tiempo estimado: ${widget.tarea.tiempoEstimado} minutos',
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 16),
+
+          // ¿Con Daño?
+          const Text(
+            '¿Con Daño?',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+
+          // Dropdown con opciones
+          DropdownButtonFormField<String>(
+            isExpanded: true,
+            value: opcionSeleccionada,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Selecciona una opción',
             ),
+            items: opcionesDanio.map((opcion) {
+              return DropdownMenuItem<String>(
+                value: opcion["valor"].toString(),
+                child: Text(opcion["texto"]),
+              );
+            }).toList(),
+            onChanged: (valor) {
+              setState(() {
+                opcionSeleccionada = valor;
+                botonHabilitado = true;
+              });
+            },
           ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        // Campo de descripción
-        TextField(
-          controller: _descripcionController,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Descripción de la foto',
-            hintText: 'Escribe una descripción detallada',
+          // Botón para seleccionar imagen
+          ElevatedButton(
+            onPressed: _pickImage,
+            child: const Text('Seleccionar Imagen'),
           ),
-          maxLines: 3,
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        // Botones "Completar" y "Desviación"
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton(
-              onPressed: botonHabilitado ? _completarTarea : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-              child: const Text('Completar',
-                  style: TextStyle(color: Colors.white)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReportDeviationForm(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 226, 81, 98),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-              child: const Text(
-                'Desviación',
-                style: TextStyle(color: Colors.white),
+          // Mostrar imagen seleccionada
+          if (_imageBytes != null)
+            GestureDetector(
+              onTap: () => _showImageDialog(context),
+              child: Image.memory(
+                _imageBytes!,
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        // Contenedor de "Referencias"
-        Container(
-          color: const Color.fromARGB(255, 221, 221, 221),
-          padding: const EdgeInsets.all(16.0),
-          width: double.infinity,
-          child: const Text(
-            'Referencias',
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
+          // Campo de descripción
+          TextField(
+            controller: _descripcionController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Descripción de la foto',
+              hintText: 'Escribe una descripción detallada',
+            ),
+            maxLines: 3,
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(height: 16),
+
+          // Botones "Completar" y "Desviación"
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: botonHabilitado ? _completarTarea : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                child: const Text('Completar',
+                    style: TextStyle(color: Colors.white)),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ReportDeviationForm(tarea: widget.tarea),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                child: const Text(
+                  'Desviación',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Contenedor de "Referencias"
+          Container(
+            color: const Color.fromARGB(255, 221, 221, 221),
+            padding: const EdgeInsets.all(16.0),
+            width: double.infinity,
+            child: const Text(
+              'Referencias',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showImageDialog(BuildContext context) {
     showDialog(

@@ -126,6 +126,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     });
 
     try {
+      // await sendTasksToGenerateTxt(context, tareas);
       await sendTasksToGeneratePdf(
           context, tareas, 'maximiliano.martinez@bladecsi.com');
     } catch (e) {
