@@ -62,6 +62,7 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
       widget.tarea.opcionDanio = opcionSeleccionada;
       widget.tarea.completada = true;
       widget.tarea.descripcion = _descripcionController.text;
+      widget.tarea.fechaCreacion = DateTime.now();
     });
     widget.onCompletar(); // Notificar la actualización.
     Navigator.pop(context); // Cerrar el modal.

@@ -67,6 +67,7 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
         widget.tarea.estadoDesgaste = opcionSeleccionada;
         widget.tarea.descripcion = _descripcionController.text;
         widget.tarea.completada = true;
+            widget.tarea.fechaCreacion = DateTime.now();
       });
 
       widget.onCompletar(); // Notifica los cambios

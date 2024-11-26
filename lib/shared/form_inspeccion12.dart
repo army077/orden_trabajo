@@ -60,7 +60,8 @@ class _FormularioCondicionState extends State<FormularioCondicion> {
       setState(() {
         widget.tarea.estadoCondicion = opcionSeleccionada;
         widget.tarea.descripcion = _descripcionController.text;
-        widget.tarea.completada = true; // Marca la tarea como completada
+        widget.tarea.completada = true;
+              widget.tarea.fechaCreacion = DateTime.now(); // Marca la tarea como completada
       });
 
       widget.onCompletar(); // Notifica los cambios

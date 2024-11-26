@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 Future<void> sendTasksToGeneratePdf(
     BuildContext context, List<Tarea> tasks, String recipientEmail) async {
   final url = Uri.parse(
-      'https://us-central1-loginfirebase-9d539.cloudfunctions.net/generatePdfFromTasksv4');
+      'https://us-central1-loginfirebase-9d539.cloudfunctions.net/generatePdfFromTasksv5');
   final headers = {"Content-Type": "application/json"};
 
   final response = await http.post(

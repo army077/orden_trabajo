@@ -32,7 +32,8 @@ class _FormularioPreventivoState extends State<FormularioPreventivo> {
   void _completarTarea() {
     if (opcionSeleccionada != null) {
       setState(() {
-        widget.tarea.completada = true; // Marca la tarea como completada
+        widget.tarea.completada = true; 
+              widget.tarea.fechaCreacion = DateTime.now();// Marca la tarea como completada
       });
 
       widget.onCompletar(); // Notifica a MyDayScreen para actualizar la lista

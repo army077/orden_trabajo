@@ -28,7 +28,7 @@ class Tarea {
   final int posicion;
   final int noFormulario;
   bool completada;
-  final DateTime fechaCreacion;
+  DateTime fechaCreacion;
   final String? maquina;
 
   // Nuevos campos para guardar datos de los formularios

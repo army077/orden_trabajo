@@ -65,6 +65,7 @@ class _FormularioEstadoEsteticoState extends State<FormularioEstadoEstetico> {
       widget.tarea.estadoEstetico = opcionSeleccionada;
       widget.tarea.descripcion = _descripcionController.text;
       widget.tarea.completada = true;
+            widget.tarea.fechaCreacion = DateTime.now();
     });
 
     widget.onCompletar(); // Notificar cambios

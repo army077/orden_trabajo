@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_app/entities/orden.dart';
 import 'package:todo_app/functions/generate_pdf_function.dart';
 import 'package:todo_app/services/auth_service.dart';
 import '../entities/tareas.dart';
@@ -120,23 +121,37 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     Navigator.pushReplacementNamed(context, '/login_screen');
   }
 
-  Future<void> sendTasksToGeneratePdfWithLoading() async {
-    setState(() {
-      _isLoading = true; // Activa el indicador de carga
-    });
+Future<void> sendTasksToGeneratePdfWithLoading() async {
+  setState(() {
+    _isLoading = true; // Activa el indicador de carga
+  });
 
-    try {
-      // await sendTasksToGenerateTxt(context, tareas);
-      await sendTasksToGeneratePdf(
-          context, tareas, 'maximiliano.martinez@bladecsi.com');
-    } catch (e) {
-      print("Error al generar el PDF: $e");
-    } finally {
-      setState(() {
-        _isLoading = false; // Desactiva el indicador de carga
-      });
+  try {
+    // Llamamos a fetchOrdenes para obtener las órdenes asociadas al técnico
+    List<Orden> ordenes = await fetchOrdenes(user!.email!);
+
+    // Extraemos los correos de los clientes (pueden incluir nulos)
+    List<String?> correosClientes = ordenes.map((orden) => orden.correoCliente).toList();
+
+    // Filtramos valores nulos y duplicados
+    List<String> correosFiltrados = correosClientes.whereType<String>().toSet().toList();
+
+    print('Correos de clientes encontrados: $correosFiltrados');
+
+    // Llamamos a la función de generación de PDF con cada correo
+    for (String correoCliente in correosFiltrados) {
+      await sendTasksToGeneratePdf(context, tareas, correoCliente);
     }
+  } catch (e) {
+    print("Error al generar el PDF: $e");
+  } finally {
+    setState(() {
+      _isLoading = false; // Desactiva el indicador de carga
+    });
   }
+}
+
+
 
   Future<void> _clearPreferences() async {
     final prefs = await SharedPreferences.getInstance();

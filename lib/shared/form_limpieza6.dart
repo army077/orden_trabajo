@@ -42,6 +42,7 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
       widget.tarea.componente = _componenteController.text;
       widget.tarea.estatus = opcionSeleccionada;
       widget.tarea.completada = true;
+            widget.tarea.fechaCreacion = DateTime.now();
     });
     widget.onCompletar();
     Navigator.pop(context);
@@ -53,7 +54,6 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Formulario Limpieza'),
-        backgroundColor: const Color(0xFF8B0000),
         automaticallyImplyLeading: false,
       ),
       body: GestureDetector(
@@ -132,32 +132,38 @@ class _FormularioLimpiezaState extends State<FormularioLimpieza> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ElevatedButton(
-                      onPressed: botonHabilitado ? _completarTarea : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B0000),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 15),
+                     ElevatedButton(
+                  onPressed: botonHabilitado ? _completarTarea : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text(
+                    'Completar',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                  ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ReportDeviationForm(tarea: widget.tarea),
                       ),
-                      child: const Text('Completar'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ReportDeviationForm(tarea: widget.tarea),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B0000),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 15),
-                      ),
-                      child: const Text('Desviación'),
-                    ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 226, 81, 98),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text(
+                    'Desviación',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
                   ],
                 ),
                 const SizedBox(height: 16),

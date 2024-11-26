@@ -65,6 +65,7 @@ class _FormularioCalibracionState extends State<FormularioCalibracion> {
       widget.tarea.estadoCalibracion = opcionSeleccionada;
       widget.tarea.descripcion = _descripcionController.text;
       widget.tarea.completada = true;
+            widget.tarea.fechaCreacion = DateTime.now();
     });
     widget.onCompletar(); // Notificar cambios
     Navigator.pop(context); // Cerrar modal

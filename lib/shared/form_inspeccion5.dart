@@ -90,6 +90,7 @@ class _FormularioFueraDeRangoState extends State<FormularioFueraDeRango> {
         widget.tarea.unidadMedida = unidadMedidaSeleccionada;
         widget.tarea.descripcion = _descripcionController.text;
         widget.tarea.completada = true;
+              widget.tarea.fechaCreacion = DateTime.now();
       });
 
       widget.onCompletar(); // Notificamos los cambios

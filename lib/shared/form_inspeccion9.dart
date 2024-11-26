@@ -62,7 +62,8 @@ class _FormularioConexionesState extends State<FormularioConexiones> {
       setState(() {
         widget.tarea.estadoConexion = opcionSeleccionada;
         widget.tarea.descripcion = _descripcionController.text;
-        widget.tarea.completada = true; // Marca la tarea como completada
+        widget.tarea.completada = true;
+              widget.tarea.fechaCreacion = DateTime.now(); // Marca la tarea como completada
       });
       widget.onCompletar(); // Notifica los cambios
       Navigator.pop(context); // Cierra el modal
