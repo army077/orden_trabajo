@@ -82,7 +82,7 @@ class _FormularioCondicionState extends State<FormularioCondicion> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta el diseño al aparecer el teclado
-    appBar: AppBar(title: const Text('Formulario Condición')),
+    appBar: AppBar(title: const Text('Formulario Condición'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al tocar fuera de los campos interactivos

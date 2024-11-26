@@ -48,7 +48,7 @@ class _FormularioPreventivoState extends State<FormularioPreventivo> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true, // Ajusta el diseño al aparecer el teclado
-      appBar: AppBar(title: const Text('Formulario Preventivo')),
+      appBar: AppBar(title: const Text('Formulario Preventivo'), automaticallyImplyLeading: false,),
       body: GestureDetector(
         onTap: () {
           // Oculta el teclado al tocar fuera de los campos interactivos

@@ -82,7 +82,7 @@ class _FormularioConexionesState extends State<FormularioConexiones> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta el diseño cuando aparece el teclado
-    appBar: AppBar(title: const Text('Formulario Conexiones')),
+    appBar: AppBar(title: const Text('Formulario Conexiones'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al tocar fuera de los campos de texto

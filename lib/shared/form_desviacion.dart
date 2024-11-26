@@ -113,8 +113,10 @@ class _ReportDeviationFormState extends State<ReportDeviationForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       resizeToAvoidBottomInset: true, 
       appBar: AppBar(
         title: const Text('Reporte de Desviación'),
+         automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

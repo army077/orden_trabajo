@@ -80,7 +80,7 @@ class _FormularioCalibracionState extends State<FormularioCalibracion> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta el diseño cuando aparece el teclado
-    appBar: AppBar(title: const Text('Formulario Calibración')),
+    appBar: AppBar(title: const Text('Formulario Calibración'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al tocar fuera del campo de texto

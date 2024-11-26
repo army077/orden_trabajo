@@ -77,7 +77,7 @@ class _FormularioConDetallesState extends State<FormularioConDetalles> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta el diseño cuando aparece el teclado
-    appBar: AppBar(title: const Text('Formulario con Detalles')),
+    appBar: AppBar(title: const Text('Formulario con Detalles'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al tocar fuera del campo de texto

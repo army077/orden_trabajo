@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class PrevDayScreen extends StatefulWidget {
-  final String tecnicoEmail; // Email del técnico logueado
+  final String tecnicoEmail;
 
   const PrevDayScreen({Key? key, required this.tecnicoEmail}) : super(key: key);
 
@@ -12,18 +12,18 @@ class PrevDayScreen extends StatefulWidget {
 }
 
 class _PrevDayScreenState extends State<PrevDayScreen> {
-  int? selectedId; // Valor seleccionado en el dropdown
-  List<Map<String, dynamic>> ordenes = []; // Lista de órdenes obtenidas
-  bool isLoading = true; // Indicador de carga
-  bool hasError = false; // Indicador de error
+  int? selectedId;
+  List<Map<String, dynamic>> ordenes = [];
+  bool isLoading = true;
+  bool hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchOrdenes(); // Cargar órdenes al iniciar
+    fetchOrdenes();
   }
 
-  Future<void> _fetchOrdenes() async {
+  Future<void> fetchOrdenes() async {
     final String url =
         'https://teknia.app/api/ordenes_agendadas_tecnico/${widget.tecnicoEmail}';
 
@@ -33,16 +33,16 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        // Filtra las órdenes del técnico logueado y asigna `orden_numero` e `id`
         setState(() {
           ordenes = data
               .map((orden) => {
-                    'orden_numero': orden['orden_numero'],
                     'id': orden['id'],
+                    'razon_social': orden['razon_social'],
+                    'orden_numero': orden['orden_numero'],
                   })
               .toList();
           if (ordenes.isNotEmpty) {
-            selectedId = int.tryParse(ordenes.first['orden_numero']);
+            selectedId = ordenes.first['id'];
           }
           isLoading = false;
         });
@@ -96,20 +96,36 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                             style: TextStyle(fontSize: 18),
                           ),
                           const SizedBox(height: 20),
-                          DropdownButton<int>(
-                            value: selectedId,
-                            items: ordenes.map((orden) {
-                              return DropdownMenuItem<int>(
-                                value: int.tryParse(orden['orden_numero']),
-                                child: Text('Orden ${orden['orden_numero']}'),
-                              );
-                            }).toList(),
-                            onChanged: (int? value) {
-                              setState(() {
-                                selectedId = value;
-                              });
-                            },
+                   DropdownButton<int>(
+                      value: selectedId,
+                      isExpanded: true, // Permite que el Dropdown ocupe todo el espacio horizontal disponible
+                      items: ordenes.map((orden) {
+                        final String text =
+                            '#: ${orden['id']} - ${orden['razon_social']}';
+                        return DropdownMenuItem<int>(
+                          value: orden['id'],
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  text,
+                                  style: const TextStyle(fontSize: 14), // Tamaño fijo razonable
+                                  overflow: TextOverflow.ellipsis, // Truncamiento
+                                ),
+                              ),
+                            ],
                           ),
+                        );
+                      }).toList(),
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedId = value;
+                        });
+                      },
+                    ),
+
+
+
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: selectedId != null

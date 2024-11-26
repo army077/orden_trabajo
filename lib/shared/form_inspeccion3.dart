@@ -73,7 +73,7 @@ class _FormularioIncompletoState extends State<FormularioIncompleto> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta el diseño cuando aparece el teclado
-    appBar: AppBar(title: const Text('Formulario Incompleto')),
+    appBar: AppBar(title: const Text('Formulario Incompleto'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al tocar fuera del campo de texto

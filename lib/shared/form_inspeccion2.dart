@@ -81,7 +81,7 @@ class _FormularioEstadoEsteticoState extends State<FormularioEstadoEstetico> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta el diseño cuando aparece el teclado
-    appBar: AppBar(title: const Text('Formulario Estado Estético')),
+    appBar: AppBar(title: const Text('Formulario Estado Estético'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al tocar fuera del campo de texto

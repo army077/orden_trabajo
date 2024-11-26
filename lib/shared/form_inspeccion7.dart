@@ -88,7 +88,7 @@ class _FormularioDesgasteState extends State<FormularioDesgaste> {
 Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: true, // Ajusta los widgets cuando aparece el teclado
-    appBar: AppBar(title: const Text('Formulario Desgaste')),
+    appBar: AppBar(title: const Text('Formulario Desgaste'), automaticallyImplyLeading: false,),
     body: GestureDetector(
       onTap: () {
         // Oculta el teclado al hacer clic fuera del campo de texto
