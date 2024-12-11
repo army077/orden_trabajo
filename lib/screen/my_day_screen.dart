@@ -181,7 +181,7 @@ Future<void> sendTasksToGeneratePdfWithLoading() async {
           ),
         ],
         title: Text(
-          'Orden Trabajo de ${user?.displayName ?? 'Usuario'}',
+          '${user?.displayName ?? ''}',
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color(0xFF8B0000),
@@ -210,7 +210,8 @@ Future<void> sendTasksToGeneratePdfWithLoading() async {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Máquina: ${tareas.isNotEmpty ? tareas.first.maquina : 'Desconocida'}',
+                    'Máquina: ${tareas.isNotEmpty ? tareas.first.maquina : 'Desconocida'}    '
+                    ': ${tareas.isNotEmpty ? tareas.first.titulo : 'Desconocida'}',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
