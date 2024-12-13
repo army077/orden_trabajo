@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login_screen',
+      initialRoute: '/login_screen',  
       onGenerateRoute: (settings) {
         final currentUser = FirebaseAuth.instance.currentUser;
 
