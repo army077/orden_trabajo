@@ -40,6 +40,8 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                     'razon_social': orden['razon_social'],
                     'orden_numero': orden['orden_numero'],
                     'prioridad': orden['prioridad'],
+                    'titulo': orden['titulo'],
+                    
                   })
               .toList();
           if (ordenes.isNotEmpty) {
@@ -127,36 +129,37 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                                           style: TextStyle(fontSize: 18),
                                         ),
                                         const SizedBox(height: 20),
-                                        DropdownButton<int>(
-                                          value: selectedId,
-                                          isExpanded: true,
-                                          items: ordenes.map((orden) {
-                                            final String text =
-                                                '#: ${orden['id']} - ${orden['prioridad']} - ${orden['razon_social']}';
-                                            return DropdownMenuItem<int>(
-                                              value: orden['id'],
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      text,
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                      ),
-                                                      overflow: TextOverflow
-                                                          .ellipsis,
+                                     DropdownButton<int>(
+                                        value: selectedId,
+                                        isExpanded: true,
+                                        items: ordenes.map((orden) {
+                                          final String razonSocial = orden['razon_social']?.toString() ?? '';
+                                          final String tituloAlternativo = orden['titulo']?.toString() ?? 'Título no disponible';
+                                          final String text =    '#: ${orden['id']}  - ${razonSocial.isEmpty ? tituloAlternativo : razonSocial}';
+                                          return DropdownMenuItem<int>(
+                                            value: orden['id'],
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    text,
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
                                                     ),
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
-                                                ],
-                                              ),
-                                            );
-                                          }).toList(),
-                                          onChanged: (int? value) {
-                                            setState(() {
-                                              selectedId = value;
-                                            });
-                                          },
-                                        ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (int? value) {
+                                          setState(() {
+                                            selectedId = value;
+                                          });
+                                        },
+                                      ),
+
                                         const SizedBox(height: 20),
                                         ElevatedButton(
                                           onPressed: selectedId != null
