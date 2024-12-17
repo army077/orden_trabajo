@@ -210,8 +210,7 @@ Future<void> sendTasksToGeneratePdfWithLoading() async {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Máquina: ${tareas.isNotEmpty ? tareas.first.maquina : 'Desconocida'}    '
-                    ': ${tareas.isNotEmpty ? tareas.first.titulo : 'Desconocida'}',
+                    'Máquina: ${tareas.isNotEmpty ? tareas.first.maquina : 'Desconocida'}',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
