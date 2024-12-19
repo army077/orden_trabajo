@@ -36,7 +36,8 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
         setState(() {
           ordenes = data
               .map((orden) => {
-                    'id': orden['id'],
+                    'id': orden['id_tabla'],
+                    'id_real': orden['id'],
                     'razon_social': orden['razon_social'],
                     'orden_numero': orden['orden_numero'],
                     'prioridad': orden['prioridad'],
@@ -66,7 +67,7 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo 
+          // Fondo
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -76,12 +77,12 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
               ),
             ),
           ),
-         
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                //  Titulo 
+                //  Titulo
                 Container(
                   margin: const EdgeInsets.only(top: 40),
                   child: const Text(
@@ -102,7 +103,8 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                           ? const Center(
                               child: Text(
                                 'Error al cargar las órdenes. Intente nuevamente.',
-                                style: TextStyle(fontSize: 16, color: Colors.red),
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.red),
                               ),
                             )
                           : ordenes.isEmpty
@@ -143,8 +145,8 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                                                       style: const TextStyle(
                                                         fontSize: 14,
                                                       ),
-                                                      overflow: TextOverflow
-                                                          .ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                 ],
@@ -161,15 +163,47 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                                         ElevatedButton(
                                           onPressed: selectedId != null
                                               ? () {
-                                                  Navigator.of(context)
-                                                      .pushNamed(
-                                                    '/my_day_screen',
-                                                    arguments: selectedId,
-                                                  );
+                                                  // Filtramos las órdenes para obtener solo la que coincide con selectedId
+                                                  final ordenesFiltradas =
+                                                      ordenes
+                                                          .where((orden) =>
+                                                              orden['id']
+                                                                  .toString() ==
+                                                              selectedId
+                                                                  .toString())
+                                                          .toList();
+                                                  print(ordenesFiltradas);
+                                                  if (ordenesFiltradas
+                                                      .isNotEmpty) {
+                                                    // Extraemos el 'id_real' de la primera orden filtrada
+                                                    final String? idReal =
+                                                        ordenesFiltradas
+                                                            .first['id_real']
+                                                            ?.toString();
+                                                    print(idReal);
+
+                                                    if (idReal != null) {
+                                                      Navigator.of(context)
+                                                          .pushNamed(
+                                                        '/my_day_screen',
+                                                        arguments: int.parse(
+                                                            idReal), // Pasamos el ID real como argumento
+                                                      );
+                                                    } else {
+                                                      // Manejo de error si 'id_real' no existe
+                                                      print(
+                                                          'Error: El ID real no está disponible.');
+                                                    }
+                                                  } else {
+                                                    // Manejo de error si no hay coincidencias
+                                                    print(
+                                                        'Error: No se encontraron órdenes con el ID seleccionado.');
+                                                  }
                                                 }
                                               : null,
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF8B0000), 
+                                            backgroundColor:
+                                                const Color(0xFF8B0000),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(12),
@@ -177,7 +211,10 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                                           ),
                                           child: const Text(
                                             'Ir a Orden de Trabajo',
-                                            style: TextStyle(fontSize: 16, color: Colors.white),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ],

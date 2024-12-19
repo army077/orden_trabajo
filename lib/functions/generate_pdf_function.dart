@@ -4,12 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:todo_app/entities/tareas.dart';
 import 'package:todo_app/screen/pdf_viewer_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:todo_app/entities/orden.dart';
 
-Future<void> sendTasksToGeneratePdf(
-    BuildContext context, List<Tarea> tasks, String recipientEmail) async {
+Future<void> sendTasksToGeneratePdf(BuildContext context, List<Tarea> tasks,
+    String recipientEmail, Orden datosReserva) async {
   final url = Uri.parse(
       'https://us-central1-loginfirebase-9d539.cloudfunctions.net/generatePdfFromTasksv5');
   final headers = {"Content-Type": "application/json"};
+
+  print(datosReserva.noSerie);
 
   final response = await http.post(
     url,
@@ -17,6 +20,7 @@ Future<void> sendTasksToGeneratePdf(
     body: jsonEncode({
       "tasks": tasks.map((task) => task.toJson()).toList(),
       "email": recipientEmail,
+      "datosReserva": datosReserva
     }),
   );
 

@@ -121,37 +121,43 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     Navigator.pushReplacementNamed(context, '/login_screen');
   }
 
-Future<void> sendTasksToGeneratePdfWithLoading() async {
-  setState(() {
-    _isLoading = true; // Activa el indicador de carga
-  });
-
-  try {
-    // Llamamos a fetchOrdenes para obtener las órdenes asociadas al técnico
-    List<Orden> ordenes = await fetchOrdenes(user!.email!);
-
-    // Extraemos los correos de los clientes (pueden incluir nulos)
-    List<String?> correosClientes = ordenes.map((orden) => orden.correoCliente).toList();
-
-    // Filtramos valores nulos y duplicados
-    List<String> correosFiltrados = correosClientes.whereType<String>().toSet().toList();
-
-    print('Correos de clientes encontrados: $correosFiltrados');
-
-    // Llamamos a la función de generación de PDF con cada correo
-    for (String correoCliente in correosFiltrados) {
-      await sendTasksToGeneratePdf(context, tareas, correoCliente);
-    }
-  } catch (e) {
-    print("Error al generar el PDF: $e");
-  } finally {
+  Future<void> sendTasksToGeneratePdfWithLoading() async {
     setState(() {
-      _isLoading = false; // Desactiva el indicador de carga
+      _isLoading = true; // Activa el indicador de carga
     });
+
+    try {
+      // Llamamos a fetchOrdenes para obtener las órdenes asociadas al técnico
+      List<Orden> ordenes = await fetchOrdenes(user!.email!);
+
+      // Filtramos las órdenes para obtener solo la que coincide con el widget.selectedId
+      List<Orden> ordenesFiltradas =
+          ordenes.where((orden) => orden.id == widget.selectedId).toList();
+
+      // Asignamos solo la propiedad de ordenes al valor con el ID
+      if (ordenesFiltradas.isNotEmpty) {
+        Orden ordenSeleccionada = ordenesFiltradas.first;
+        // Ejemplo de extracción del correo si necesitas usarlo
+
+        print('Orden encontrada para el ID seleccionado: ${ordenSeleccionada}');
+        print('Correo del cliente: ${ordenSeleccionada.correoCliente}');
+        print('Nombre del cliente: ${ordenSeleccionada.contacto}');
+        print('Nombre del cliente: ${ordenSeleccionada.noSerie}');
+        print('Nombre del cliente: ${ordenSeleccionada.modelo}');
+        print('Nombre del cliente: ${ordenSeleccionada.tecnicoAsignado}');
+        await sendTasksToGeneratePdf(context, tareas,
+            ordenSeleccionada.correoCliente ?? "", ordenSeleccionada);
+      } else {
+        print('No se encontró ninguna orden con el ID: ${widget.selectedId}');
+      }
+    } catch (e) {
+      print("Error al generar el PDF: $e");
+    } finally {
+      setState(() {
+        _isLoading = false; // Desactiva el indicador de carga
+      });
+    }
   }
-}
-
-
 
   Future<void> _clearPreferences() async {
     final prefs = await SharedPreferences.getInstance();
@@ -202,9 +208,7 @@ Future<void> sendTasksToGeneratePdfWithLoading() async {
             List<Tarea> noCompletadas =
                 tareas.where((t) => !t.completada).toList();
 
-          
-
-           return Column(
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -234,7 +238,6 @@ Future<void> sendTasksToGeneratePdfWithLoading() async {
                 ),
               ],
             );
-
           }
         },
       ),
