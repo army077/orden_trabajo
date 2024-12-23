@@ -38,8 +38,13 @@ class AuthScreen extends StatelessWidget {
                   return PrevDayScreen(tecnicoEmail: userEmail);
                 }
 
-                // Si hay un ID seleccionado, redirige a `MyDayScreen`
-                return MyDayScreen(selectedId: idSnapshot.data!);
+                // Si hay un ID seleccionado, construye los argumentos y redirige a `MyDayScreen`
+                return MyDayScreen(
+                  arguments: {
+                    'id_real': idSnapshot.data!, // Supongamos que `id_real` es el ID seleccionado
+                    'id_tabla': idSnapshot.data!, // Usa el mismo ID o ajusta según sea necesario
+                  },
+                );
               },
             );
           } else {

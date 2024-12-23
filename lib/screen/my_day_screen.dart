@@ -27,9 +27,9 @@ import '../shared/form_inspeccion12.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
 class MyDayScreen extends StatefulWidget {
-  final int selectedId;
+  final Map<String, int> arguments;
 
-  const MyDayScreen({Key? key, required this.selectedId}) : super(key: key);
+  const MyDayScreen({Key? key, required this.arguments}) : super(key: key);
 
   @override
   _MyDayScreenState createState() => _MyDayScreenState();
@@ -46,77 +46,84 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    print('Cargando tareas para ID: ${widget.selectedId}');
+    print(
+        'Cargando tareas para ID: ${widget.arguments['id_real']}, la orden agendada es: ${widget.arguments['id_tabla']}');
     super.initState();
-    futureTareas = _loadTareas(widget.selectedId);
+    final int idReal = widget.arguments['id_real']!;
+    final int idTabla = widget.arguments['id_tabla']!;
+    futureTareas = _loadTareas(idReal, idTabla);
     WidgetsBinding.instance.addObserver(this); // Observamos el ciclo de vida
   }
 
   @override
   void dispose() {
+    final int idReal = widget.arguments['id_real']!;
+    final int idTabla = widget.arguments['id_tabla']!;
+    _saveTareas(tareas, idReal, idTabla);
     WidgetsBinding.instance.removeObserver(this); // Quitamos el observer
-    _saveTareas(); // Guardamos las tareas antes de cerrar
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      _saveTareas(); // Guardamos las tareas al salir
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      final int idReal = widget.arguments['id_real']!;
+      final int idTabla = widget.arguments['id_tabla']!;
+      _saveTareas(tareas, idReal, idTabla); // Proporcionar los argumentos necesarios
       Navigator.pushReplacementNamed(context, '/login_screen');
     }
   }
 
-  Future<List<Tarea>> _loadTareas(int id) async {
-    print('Llamando a _loadTareas con ID: $id');
-
+  Future<List<Tarea>> _loadTareas(int idReal, int idTabla) async {
+    print(
+        'Llamando a _loadTareas con ID de actividades: $idReal y ID de orden agendada: $idTabla');
     final prefs = await SharedPreferences.getInstance();
-    String? tareasJson = prefs.getString('tareas_$id');
-
+    final llaveCache = 'tareas_${idReal}_$idTabla';
+    String? tareasJson = prefs.getString(llaveCache);
     // Si hay datos en caché, los devuelve
     if (tareasJson != null) {
-      print('Tareas cargadas desde cache para ID: $id');
+      print(
+          'Tareas cargadas desde cache con ID de actividades: $idReal y ID de orden agendada: $idTabla');
       List<dynamic> data = json.decode(tareasJson);
       List<Tarea> tareas = data.map((json) => Tarea.fromJson(json)).toList();
 
       // Verificar si al menos una tarea está completada
       bool algunaCompletada = tareas.any((tarea) => tarea.completada);
-      if (!algunaCompletada) {
+      if (algunaCompletada) {
+        return tareas;
+      } else {
         print('Ninguna tarea está completada, reiniciando JSON.');
-        List<Tarea> apiTareas = await fetchTareas(id);
-        await _saveTareas(apiTareas);
+        List<Tarea> apiTareas = await fetchTareas(idReal);
+        await _saveTareas(apiTareas, idReal, idTabla);
         return apiTareas;
       }
-      return tareas;
     }
-
-    //d
-    // Si no hay datos en cache, llama a la API
-    print('Cargando tareas desde la API para ID: $id');
-    try {
-      List<Tarea> apiTareas = await fetchTareas(id);
-      await _saveTareas(apiTareas); // Guarda las tareas en cache
-      return apiTareas;
-    } catch (e) {
-      print('Error al cargar tareas: $e');
-      return []; // Si ocurre un error, devuelve una lista vacía
-    }
+  // Si no hay datos en caché, llama a la API
+  print('Cargando tareas desde la API para ID real: $idReal y tabla: $idTabla');
+  try {
+    List<Tarea> apiTareas = await fetchTareas(idReal);
+    await _saveTareas(apiTareas, idReal, idTabla); // Guarda las tareas en caché
+    return apiTareas;
+  } catch (e) {
+    print('Error al cargar tareas: $e');
+    return [];
   }
+}
 
-  Future<List<Tarea>> _resetTareas(int id) async {
-    List<Tarea> apiTareas = await fetchTareas(id);
-    await _saveTareas(apiTareas);
+  Future<List<Tarea>> _resetTareas(int idReal, int idTabla) async {
+    List<Tarea> apiTareas = await fetchTareas(idReal);
+    await _saveTareas(apiTareas, idReal, idTabla);
     return apiTareas;
   }
 
-  Future<void> _saveTareas([List<Tarea>? updatedTareas]) async {
+  Future<void> _saveTareas(List<Tarea>? updatedTareas, int idReal, int idTabla) async {
     final prefs = await SharedPreferences.getInstance();
+    final cacheKey = 'tareas_${idReal}_$idTabla';
     String tareasJson = json.encode(
       (updatedTareas ?? tareas).map((tarea) => tarea.toJson()).toList(),
     );
-    await prefs.setString(
-        'tareas_${widget.selectedId}', tareasJson); // Prefijo con el ID
+    await prefs.setString(cacheKey,
+        tareasJson); // Prefijo con el ID
   }
 
   Future<void> signOut() async {
@@ -155,12 +162,15 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
       List<Orden> ordenes = await fetchOrdenes(user!.email!);
       print(
           'Órdenes obtenidas: ${ordenes.map((o) => 'id: ${o.id_agenda}, numero: ${o.ordenNumero}').join(', ')}');
-      Orden? ordenSeleccionada =
-          ordenes.firstWhereOrNull((orden) => orden.id == widget.selectedId);
-      print('Orden seleccionada:${ordenSeleccionada?.id}');
+      Orden? ordenSeleccionada = ordenes.firstWhereOrNull((orden) =>
+          orden.id == widget.arguments['id_real'] &&
+          orden.id_agenda == widget.arguments['id_tabla']);
+      print(
+          'Orden agendada seleccionada:${ordenSeleccionada?.id_agenda} con actividades para orden:${ordenSeleccionada?.id}');
 
       if (ordenSeleccionada == null) {
-        print('no se encontró la orden con numero_orden: ${widget.selectedId}');
+        print(
+            'no se encontró la orden con numero_orden: ${widget.arguments['id_real']}');
         return false;
       }
       final url = Uri.parse(
@@ -189,8 +199,9 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
       List<Orden> ordenes = await fetchOrdenes(user!.email!);
 
       // Filtramos las órdenes para obtener solo la que coincide con el widget.selectedId
-      List<Orden> ordenesFiltradas =
-          ordenes.where((orden) => orden.id == widget.selectedId).toList();
+      List<Orden> ordenesFiltradas = ordenes
+          .where((orden) => orden.id == widget.arguments['id_real'])
+          .toList();
 
       // Asignamos solo la propiedad de ordenes al valor con el ID
       if (ordenesFiltradas.isNotEmpty) {
@@ -206,7 +217,8 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
         await sendTasksToGeneratePdf(context, tareas,
             ordenSeleccionada.correoCliente ?? "", ordenSeleccionada);
       } else {
-        print('No se encontró ninguna orden con el ID: ${widget.selectedId}');
+        print(
+            'No se encontró ninguna orden con el ID: ${widget.arguments['id_real']}');
       }
     } catch (e) {
       print("Error al generar el PDF: $e");
@@ -219,10 +231,13 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
 
   Future<void> _clearPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Elimina todo el contenido almacenado
-    print('Resetear el JSON. ---------------------------------');
+    final idReal = widget.arguments['id_real']!;
+    final idTabla = widget.arguments['id_tabla']!;
+    final cacheKey = 'tareas_${idReal}_$idTabla';
+    await prefs.remove(cacheKey); // Elimina todo el contenido almacenado
+    print('Caché limpiado para ID real: $idReal y tabla: $idTabla');
     setState(() {
-      futureTareas = _resetTareas(widget.selectedId);
+      futureTareas = _resetTareas(idReal, idTabla);
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Formulario limpiado')),
@@ -431,9 +446,11 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     setState(() {
       tarea.completada = isCompleted;
     });
-
+     
     try {
-      await _saveTareas();
+      final int idReal = widget.arguments['id_real']!;
+      final int idTabla = widget.arguments['id_tabla']!;
+      await _saveTareas(tareas, idReal, idTabla);
       await _updateTareasPonderacion();
 
       ScaffoldMessenger.of(context).showSnackBar(

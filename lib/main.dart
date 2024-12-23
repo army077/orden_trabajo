@@ -23,13 +23,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login_screen',  
+      initialRoute: '/login_screen',
       onGenerateRoute: (settings) {
         final currentUser = FirebaseAuth.instance.currentUser;
 
         if (settings.name == '/my_day_screen') {
-          // Verifica si hay un argumento válido
-          if (settings.arguments == null || settings.arguments is! int) {
+          // Verifica si los argumentos son válidos
+          if (settings.arguments == null || settings.arguments is! Map<String, int>) {
             return MaterialPageRoute(
               builder: (context) => PrevDayScreen(
                 tecnicoEmail: currentUser?.email ?? 'sin-email',
@@ -37,10 +37,10 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Obtén el argumento válido
-          final selectedId = settings.arguments as int;
+          // Obtén los argumentos válidos
+          final arguments = settings.arguments as Map<String, int>;
           return MaterialPageRoute(
-            builder: (context) => MyDayScreen(selectedId: selectedId),
+            builder: (context) => MyDayScreen(arguments: arguments),
           );
         }
 

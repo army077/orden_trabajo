@@ -183,19 +183,26 @@ class _PrevDayScreenState extends State<PrevDayScreen> {
                                                   print(ordenesFiltradas);
                                                   if (ordenesFiltradas
                                                       .isNotEmpty) {
-                                                    // Extraemos el 'id_real' de la primera orden filtrada
+                                                    // Extraemos 'id_real' y 'id_tabla' de la primera orden filtrada
                                                     final String? idReal =
                                                         ordenesFiltradas
                                                             .first['id_real']
                                                             ?.toString();
-                                                    print(idReal);
+                                                    final String? idTabla =
+                                                        ordenesFiltradas
+                                                            .first['id']
+                                                            ?.toString();
+                                                    print(
+                                                        'ID Real: $idReal, ID Tabla: $idTabla');
 
-                                                    if (idReal != null) {
+                                                    if (idReal != null && idTabla != null) {
                                                       Navigator.of(context)
                                                           .pushNamed(
                                                         '/my_day_screen',
-                                                        arguments: int.parse(
-                                                            idReal), // Pasamos el ID real como argumento
+                                                        arguments: 
+                                                        {'id_tabla': int.parse(idTabla),
+                                                        'id_real': int.parse(idReal)},
+
                                                       );
                                                     } else {
                                                       // Manejo de error si 'id_real' no existe
