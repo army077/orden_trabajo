@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/screen/my_day_screen.dart';
-import 'package:todo_app/services/auth_service.dart';
+// import 'package:todo_app/services/auth_service.dart';
 import 'dart:io';
 import 'package:intl/date_symbol_data_local.dart';
 
