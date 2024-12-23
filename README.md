@@ -1,6 +1,6 @@
 # todo_app
 
-A new Flutter project.
+Un proyecto de flutter que incluye un checklist de actividades en donde se mide cuanto tiempo se tarda en hacer cada una y el progreso de estas.
 
 ## Getting Started
 
