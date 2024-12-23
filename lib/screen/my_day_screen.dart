@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:share_plus/share_plus.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/entities/orden.dart';
 import 'package:todo_app/functions/generate_pdf_function.dart';
 import 'package:todo_app/services/auth_service.dart';
+import 'package:todo_app/shared/form_ensamble.dart';
 import '../entities/tareas.dart';
 import '../shared/form_inspeccion1.dart';
 import '../shared/form_inspeccion2.dart';
@@ -21,8 +23,8 @@ import '../shared/form_inspeccion9.dart';
 import '../shared/form_reemplazo10.dart';
 import '../shared/form_ajuste11.dart';
 import '../shared/form_inspeccion12.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
 class MyDayScreen extends StatefulWidget {
   final int selectedId;
@@ -39,6 +41,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   late Future<List<Tarea>> futureTareas;
   final AuthService _authService = AuthService();
   List<Tarea> tareas = [];
+
   bool _isLoading = false; // Variable de estado para el indicador de carga
 
   @override
@@ -119,6 +122,61 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
   Future<void> signOut() async {
     await _authService.signOut();
     Navigator.pushReplacementNamed(context, '/login_screen');
+  }
+
+  int conteoCompletados = 0;
+  int conteoTotal = 0;
+
+  Future<void> _updateTareasPonderacion() async {
+    setState(() {
+      conteoCompletados = tareas.where((t) => t.completada).length;
+      conteoTotal = tareas.length;
+    });
+
+    double avance =
+        conteoTotal > 0 ? (conteoCompletados / conteoTotal) * 100 : 0.0;
+
+    try {
+      final response =
+          await _apiProgreso(conteoCompletados, conteoTotal, avance);
+      if (response) {
+        print(
+            'Progreso enviado correctamente: $conteoCompletados/$conteoTotal ($avance)');
+      } else {
+        print('Error al enviar el progreso.');
+      }
+    } catch (e) {
+      print('Error en la API: $e');
+    }
+  }
+
+  Future<bool> _apiProgreso(int completed, int total, double avance) async {
+    try {
+      List<Orden> ordenes = await fetchOrdenes(user!.email!);
+      print(
+          'Órdenes obtenidas: ${ordenes.map((o) => 'id: ${o.id_agenda}, numero: ${o.ordenNumero}').join(', ')}');
+      Orden? ordenSeleccionada =
+          ordenes.firstWhereOrNull((orden) => orden.id == widget.selectedId);
+      print('Orden seleccionada:${ordenSeleccionada?.id}');
+
+      if (ordenSeleccionada == null) {
+        print('no se encontró la orden con numero_orden: ${widget.selectedId}');
+        return false;
+      }
+      final url = Uri.parse(
+          'https://teknia.app/api3/actualizar_stavance/${ordenSeleccionada.id_agenda}');
+      print('Enviando solicitud PUT a: $url');
+
+      final response = await HttpClient().putUrl(url)
+        ..headers.contentType = ContentType.json
+        ..write(jsonEncode({'estatus': 'En progreso', 'avance': avance}));
+
+      final result = await response.close();
+      return result.statusCode == 200;
+    } catch (e) {
+      print('Error en la solicitud PUT: $e');
+      return false;
+    }
   }
 
   Future<void> sendTasksToGeneratePdfWithLoading() async {
@@ -294,7 +352,7 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
             setState(() {
               tarea.completada = value ?? false;
             });
-            _saveTareas();
+            _markAsCompleted(tarea, value ?? false);
           },
         ),
         onTap: () => _showTaskDetails(tarea),
@@ -325,40 +383,43 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     switch (tarea.noFormulario) {
       case 1:
         return FormularioConDetalles(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 2:
         return FormularioEstadoEstetico(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 3:
         return FormularioIncompleto(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 4:
         return FormularioCalibracion(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 5:
         return FormularioFueraDeRango(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 6:
         return FormularioLimpieza(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 7:
         return FormularioDesgaste(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 8:
         return FormularioConFugas(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 9:
         return FormularioConexiones(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 10:
         return FormularioPreventivo(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 11:
         return FormularioComponente(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       case 12:
         return FormularioCondicion(
-            tarea: tarea, onCompletar: () => _markAsCompleted(tarea));
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
+      case 13:
+        return FormularioEnsamble(
+            tarea: tarea, onCompletar: () => _markAsCompleted(tarea, true));
       default:
         return const Center(
             child: Text('Formulario no disponible',
@@ -366,11 +427,27 @@ class _MyDayScreenState extends State<MyDayScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _markAsCompleted(Tarea tarea) async {
+  void _markAsCompleted(Tarea tarea, bool isCompleted) async {
     setState(() {
-      tarea.completada = true;
+      tarea.completada = isCompleted;
     });
-    await _saveTareas();
+
+    try {
+      await _saveTareas();
+      await _updateTareasPonderacion();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(isCompleted
+                ? 'Tarea marcada como completada.'
+                : 'Tarea marcada como pendiente.')),
+      );
+    } catch (e) {
+      print('Error al actualizar progreso: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al actualizar el progreso.')),
+      );
+    }
   }
 }
 

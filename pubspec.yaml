@@ -47,6 +47,7 @@ dependencies:
   url_launcher: ^6.3.1
   pdfx: ^2.8.0
   intl: ^0.17.0
+  collection: ^1.16.0
 
 
 

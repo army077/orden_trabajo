@@ -20,6 +20,7 @@ Future<List<Orden>> fetchOrdenes(String correoTecnico) async {
 
 class Orden {
   final int id;
+  final int id_agenda;
   final String titulo;
   final String prioridad;
   final DateTime fechaEstimada;
@@ -43,6 +44,7 @@ class Orden {
 
   Orden({
     required this.id,
+    required this.id_agenda,
     required this.titulo,
     required this.prioridad,
     required this.fechaEstimada,
@@ -69,6 +71,7 @@ class Orden {
   factory Orden.fromJson(Map<String, dynamic> json) {
     return Orden(
       id: json['id'] ?? 0,
+      id_agenda: json['id_tabla'] ?? 0,
       titulo: json['titulo'] ?? 'Sin título',
       prioridad: json['prioridad'] ?? 'Sin prioridad',
       fechaEstimada: DateTime.parse(json['fecha_estimada']),
@@ -97,6 +100,7 @@ class Orden {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'id_agenda': id_agenda,
       'titulo': titulo,
       'prioridad': prioridad,
       'fecha_estimada': fechaEstimada.toIso8601String(),
