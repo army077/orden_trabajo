@@ -1,4 +1,4 @@
-# todo_app
+# ToDo app
 
 Un proyecto de flutter que incluye un checklist de actividades en donde se mide cuanto tiempo se tarda en hacer cada una y el progreso de estas.
 
